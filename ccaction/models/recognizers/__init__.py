@@ -1,0 +1,1 @@
+from .vidconv_recognizer import VidConvRecognizer
