@@ -1,5 +1,5 @@
 # ccaction
-This project is developed by Cybercore AI for human action recognition, behavior detection and abnormal behavior analysis.
+This project is developed by Cybercore AI for AI City Challenge 2022 Track 3.
 The project is based on the open source [mmaction2](https://github.com/open-mmlab/mmaction2)
 
 # Installation
@@ -7,7 +7,7 @@ The project is based on the open source [mmaction2](https://github.com/open-mmla
 a. Create a conda virtual environment and activate it.
 
 ```shell
-conda create -n user_ccaction python=3.7 -y
+conda create -n user_tra python=3.7 -y
 conda activate user_ccaction
 ```
 
