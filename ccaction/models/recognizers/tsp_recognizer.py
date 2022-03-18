@@ -18,7 +18,7 @@ class VidConvRecognizer(Recognizer2D):
 
         cls_score = self.cls_head(x, num_segs)
         gt_labels = labels.squeeze().long()
-        loss = self.cls_head.loss(cls_score, gt_labels,  **kwargs)
+        loss = self.cls_head.loss(cls_score, gt_labels, **kwargs)
 
         return loss
 
@@ -51,8 +51,7 @@ class VidConvRecognizer(Recognizer2D):
 
         # should have cls_head if not extracting features
         cls_score = self.cls_head(x, num_segs)
-        if isinstance(cls_score, tuple):
-            cls_score = cls_score[0]
+
         assert cls_score.size()[0] % batches == 0
         # calculate num_crops automatically
         cls_score = self.average_clip(cls_score,
@@ -89,8 +88,6 @@ class VidConvRecognizer(Recognizer2D):
         #   3) `ThreeCrop/TenCrop/MultiGroupCrop` in `test_pipeline`
         #   4) `num_clips` in `SampleFrames` or its subclass if `clip_len != 1`
         cls_score = self.cls_head(x, fcn_test=True)
-        if isinstance(cls_score, tuple):
-            cls_score = cls_score[0]
 
         assert cls_score.size()[0] % batches == 0
         # calculate num_crops automatically
