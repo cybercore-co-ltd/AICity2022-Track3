@@ -12,24 +12,21 @@ def intra_consistency_loss(heat, gt):
     Returns:
         torch.Tensor: Intra-consistency loss.
     """
-
     distance  = (heat.unsqueeze(-1)-heat.unsqueeze(1)).abs() # [BS,T,T]
     # gt -> [N,T,1]
-    gt_1 = gt.unsqueeze(-1).unsqueeze(1)  # [Bs,T] -> [Bs,1,T,1]
-    gt_2 = gt.unsqueeze(1).unsqueeze(1)   # [Bs,T] -> [Bs,1,1,T]
+    gt_1 = gt.unsqueeze(-1)  # [Bs,T] -> [Bs,T,1]
+    gt_2 = gt.unsqueeze(1)   # [Bs,T] -> [Bs,1,T]
     eye_mat = torch.diag_embed(torch.ones_like(gt)) # [Bs,T,T]
+    M_gt_1 = F.relu(torch.matmul(gt_1, gt_2) - eye_mat) # [Bs,T,T]
+    M_gt_2 = (gt_1 - gt_2) * (gt_1 - gt_2) # [Bs,T,T]
+    M_gt_3 = torch.ones_like(M_gt_1) - eye_mat - M_gt_1 - M_gt_2 # [Bs,T,T]
+    pairs_1 = M_gt_1.sum(dim=(1,2)) + 1 # [Bs]
+    pairs_2 = M_gt_2.sum(dim=(1,2)) + 1 # [Bs]
+    pairs_3 = M_gt_3.sum(dim=(1,2)) + 1 # [Bs]
 
-    M_gt_1 = F.relu(torch.matmul(gt_1, gt_2) - eye_mat.unsqueeze(1)) # [N,1,T,T]
-    M_gt_2 = (gt_1 - gt_2) * (gt_1 - gt_2) # [N,1,T,T]
-    M_gt_3 = torch.ones_like(M_gt_1) - eye_mat.unsqueeze(1) - M_gt_1 - M_gt_2 # [N,1,T,T]
-    pairs_1 = M_gt_1.sum(dim=(1,2,3))+1 # [N]
-    pairs_2 = M_gt_2.sum(dim=(1,2,3)) + 1 # [N]
-    pairs_3 = M_gt_3.sum(dim=(1,2,3)) + 1 # [N]
-
-
-    consistency_1 = (distance.unsqueeze(1) * M_gt_1).sum(dim=(1,2,3)) / pairs_1 # [N]
-    consistency_2 = 1 - (distance.unsqueeze(1) * M_gt_2).sum(dim=(1,2,3)) / pairs_2 # [N]
-    consistency_3 = (distance.unsqueeze(1) * M_gt_3).sum(dim=(1,2,3)) / pairs_3 # [N]
+    consistency_1 = (distance * M_gt_1).sum(dim=(1,2)) / pairs_1 # [Bs]
+    consistency_2 = - (distance * M_gt_2).sum(dim=(1,2)) / pairs_2 # [Bs]
+    consistency_3 = (distance * M_gt_3).sum(dim=(1,2)) / pairs_3 # [Bs]
     consistency_loss = consistency_1 + consistency_2 + consistency_3
     return consistency_loss
 
@@ -66,8 +63,7 @@ class IntraConsistencyLoss(nn.Module):
         for (heat,gt) in zip(pred, labels):
             loss = loss + intra_consistency_loss(heat, gt)
 
-        loss = self.loss_weight * loss
-
+        loss = self.loss_weight * loss.mean()/len(pred)
         return loss
 
 @LOSSES.register_module()

@@ -3,7 +3,7 @@ from mmaction.models.builder import LOCALIZERS
 from ccaction.models.losses import InterConsistencyLoss, IntraConsistencyLoss
 
 @LOCALIZERS.register_module()
-class BUMR(TEM):
+class BSN_MR(TEM):
     """
     Bottom-Up Temporal Action Localization with Mutual Regularization
     From paper https://arxiv.org/abs/2002.07358
@@ -28,14 +28,16 @@ class BUMR(TEM):
         loss_end_small = self.loss_cls(score_end, label_end,
                                        self.match_threshold)
 
-        loss_interC = self.interC_loss(tem_output, (label_action, label_start, label_end))
-        loss_intraC = self.intraC_loss(tem_output)
+        preds = (score_action, score_start, score_end)
+        gt = (label_action, label_start, label_end)
+        loss_intraC = self.intraC_loss(preds, gt )
+        loss_interC = self.interC_loss(preds)
         loss_dict = {
             'loss_action': loss_action * self.loss_weight,
             'loss_start': loss_start_small,
             'loss_end': loss_end_small,
-            'loss_interC': loss_interC,
             'loss_intraC': loss_intraC,
+            'loss_interC': loss_interC,
         }
 
         return loss_dict

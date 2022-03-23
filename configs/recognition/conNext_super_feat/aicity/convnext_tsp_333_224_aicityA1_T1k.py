@@ -10,20 +10,19 @@ model = dict(
         drop_path_rate=0.25,
         init_cfg=dict(type='Pretrained', checkpoint="tiny_1k")
     ),
-
     cls_head=dict(
         type='TSPHead',
         in_channels=768,
         kernel_size=3,
         dilation=7,
-        expand_ratio=1,
+        expand_ratio=0.25,
         norm_cfg=dict(type='SyncBN', requires_grad=True),
         action_label_head = dict(type='TSNHead', 
                         num_classes=18,
-                        dropout_ratio=0.2),
+                        dropout_ratio=0.3),
         actioness_head = dict(type='TSNHead',
                         num_classes=2,
-                        dropout_ratio=0.2),
+                        dropout_ratio=0.3),
        ),
 
     test_cfg=dict(average_clips='prob'),

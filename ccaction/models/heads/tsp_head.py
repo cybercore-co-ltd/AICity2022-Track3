@@ -1,4 +1,5 @@
 from typing import Optional
+from numpy import zeros_like
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -47,7 +48,7 @@ class TSPHead(nn.Module):
         cls_score = self.cls_branch(x, num_segs)
         actioness_score = self.actioness_branch(x, num_segs)
 
-        return tuple([cls_score, actioness_score])
+        return (cls_score, actioness_score)
 
     def init_weights(self):
         """Initiate the parameters from scratch."""
@@ -55,24 +56,21 @@ class TSPHead(nn.Module):
         self.actioness_branch.init_weights()
     
     def loss(self, scores, labels, **kwargs):
-        
-        cls_labels = labels[labels!=18]
-        cls_score = scores[0][labels!=18]
-        if len(cls_labels)>0:
+        foreground_idx = labels < self.cls_branch.num_classes 
+        num_foreground = foreground_idx.sum()
+        if num_foreground >0:
+            cls_labels = labels[foreground_idx]
+            cls_score = scores[0][foreground_idx]
             cls_loss = self.cls_branch.loss(cls_score, cls_labels, **kwargs)
         else:
             cls_loss = {}
         
-        actioness_labels = labels.detach()
-        actioness_labels[actioness_labels==18]=0
-        actioness_labels[actioness_labels!=18]=1
-        if len(actioness_labels)>0:
-            actioness_loss = self.actioness_branch.loss(scores[1], actioness_labels, **kwargs)
+        
+        actioness_labels = torch.zeros_like(labels)
+        actioness_labels[foreground_idx] = 1
+        actioness_loss = self.actioness_branch.loss(scores[1], actioness_labels, **kwargs)
 
-        # import ipdb; ipdb.set_trace()
-        t = {}
-        t['loss_actioness']=actioness_loss['loss_cls']
-        cls_loss.update(t)
+        cls_loss['loss_actioness']=actioness_loss['loss_cls']
             
         return cls_loss
         
