@@ -1,9 +1,11 @@
 import numpy as np
 import random
 import math
+import os
 from mmaction.datasets.builder import PIPELINES
 from mmaction.datasets.pipelines import SampleFrames
 from mmaction.datasets.pipelines import SampleAVAFrames
+from mmaction.datasets.pipelines import DecordInit, DecordDecode
 
 @PIPELINES.register_module()
 class InvalidBoxFilter():
@@ -148,3 +150,56 @@ class AdaptSampleFrames(SampleFrames):
         self.frame_interval = min(max(1,real_interval),self.max_interval)
        
         return super().__call__(results)
+    
+    
+@PIPELINES.register_module()
+class CcDecordInit(DecordInit):
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+    def __call__(self, results):
+                
+        results_rearview = results.copy()
+        results_rearview['filename'] = results_rearview['filename'].replace("Dashboard","Rear_view")
+        
+        results_rightside = results.copy()
+        results_rightside['filename'] = results_rightside['filename'].replace("Dashboard","Rightside_window")
+        if not os.path.exists(results_rightside['filename']):
+            results_rightside['filename']=results_rightside['filename'].replace("Rightside","Right_side")
+        results = super().__call__(results)
+        results_rearview = super().__call__(results_rearview)
+        results_rightside = super().__call__(results_rightside)
+        results['other_view'] = [results_rearview, results_rightside]
+        return results
+    
+    
+@PIPELINES.register_module()
+class CcDecordDecode(DecordDecode):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+    def __call__(self, results):
+        
+        results_rearview = results.copy()
+        results_rearview['filename'] = results_rearview['other_view'][0]['filename']
+        results_rearview['video_reader'] = results_rearview['other_view'][0]['video_reader']
+        results_rearview['other_view']=None
+        
+        results_rightside = results.copy()
+        results_rightside['filename'] = results_rightside['other_view'][1]['filename']
+        results_rightside['video_reader'] = results_rightside['other_view'][1]['video_reader']
+        results_rightside['other_view']=None
+        
+        results['other_view']=None
+        
+        results = super().__call__(results)
+        results_rearview = super().__call__(results_rearview)
+        results_rightside = super().__call__(results_rightside)
+        
+        # combine results['imgs']= [Dashboard, rearview, rightside]
+        results['imgs'] = results['imgs'] + results_rearview['imgs'] + results_rightside['imgs']
+        results["view_name"] = [results['filename'], results_rearview['filename'], results_rightside['filename']]
+        del results_rearview, results_rightside
+        return results
+        

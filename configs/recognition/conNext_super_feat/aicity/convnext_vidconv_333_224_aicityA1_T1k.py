@@ -1,6 +1,6 @@
 _base_ = ['../../../mmaction/_base_/default_runtime.py',
           '../../../mmaction/_base_/schedules/sgd_50e.py',
-          '../../../_base_/datasets/aicity_A1_9rgb_224.py']
+          '../../../_base_/datasets/aicity_A1_9rgb_224_video.py']
 custom_imports = dict(imports=['ccaction'], allow_failed_imports=False)
 model = dict(
     type='VidConvRecognizer',
@@ -11,15 +11,15 @@ model = dict(
         init_cfg=dict(type='Pretrained', checkpoint="tiny_1k")
     ),
     cls_head=dict(
-        type='VidConvHead',
+        type='MultiviewVidConvHead',
         in_channels=768,
         num_classes=18,
         spatial_type='avg',
-        expand_ratio=1,
+        expand_ratio=0.25,
         kernel_size=3,
         dilation=7,
         norm_cfg=dict(type='SyncBN', requires_grad=True),
-        dropout_ratio=0.2),
+        dropout_ratio=0.3),
     test_cfg=dict(average_clips='prob'),
     train_cfg=None,
 )
@@ -27,7 +27,7 @@ model = dict(
 #----------- AdamW
 optimizer = dict(_delete_=True,
                  type='AdamW',
-                 lr=0.001,
+                 lr=0.0005,
                  betas=(0.9, 0.999),
                  weight_decay=0.0005,
                  paramwise_cfg=dict(
