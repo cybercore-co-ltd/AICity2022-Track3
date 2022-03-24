@@ -10,6 +10,7 @@
 
 import argparse
 import glob
+from logging import raiseExceptions
 import os
 import pandas as pd
 import os.path as osp
@@ -20,15 +21,7 @@ from datetime import datetime
 import mmcv
 import numpy as np
 
-def crop_resize_vid(frames, output_size=(224,224), H=1080,W=1920, view=False):
-    if view=='Dashboard':
-        frames = [f[140:1000,510:1764,:] for f in frames]
-    elif view=='Rear':
-        frames = [f[140:1000,820:1920,:] for f in frames]
-    elif view=='Rightsize':
-        frames = [f[140:1000,0:1400,:] for f in frames]
-    frames = [mmcv.imresize(f, output_size) for f in frames]
-    return frames
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='extract optical flows')
@@ -53,13 +46,8 @@ def parse_args():
     parser.add_argument(
         '--new-short',
         type=int,
-        default=0,
+        default=256,
         help='resize image short side length keeping ratio')
-    parser.add_argument('--num-gpu', type=int, default=8, help='number of GPU')
-    parser.add_argument(
-        '--use-opencv',
-        action='store_true',
-        help='Whether to use opencv to extract rgb frames')
     parser.add_argument(
         '--report-file',
         type=str,
@@ -68,6 +56,68 @@ def parse_args():
     args = parser.parse_args()
 
     return args
+
+def crop_resize_write_vid(frames, view, out_full_path):
+    # Different view has different crop areas
+    if view=='Dashboard':
+        frames = [f[140:1000,510:1760,:] for f in frames]
+    elif view=='Rear':
+        frames = [f[140:1000,820:,:] for f in frames]
+    elif view=='Rightside':
+        frames = [f[80:1000,750:,:] for f in frames]
+    else:
+        raiseExceptions('view not supported')
+
+    run_success = -1
+
+    for i, vr_frame in enumerate(frames):
+        if vr_frame is not None:
+            w, h, _ = np.shape(vr_frame)
+            if args.new_short == 0:
+                if args.new_width == 0 or args.new_height == 0:
+                    # Keep original shape
+                    out_img = vr_frame
+                else:
+                    out_img = mmcv.imresize(
+                        vr_frame,
+                        (args.new_width, args.new_height))
+            else:
+                if min(h, w) == h:
+                    new_h = args.new_short
+                    new_w = int((new_h / h) * w)
+                else:
+                    new_w = args.new_short
+                    new_h = int((new_w / w) * h)
+                out_img = mmcv.imresize(vr_frame, (new_h, new_w))
+            mmcv.imwrite(out_img,
+                            f'{out_full_path}/img_{i + 1:05d}.jpg')
+        else:
+            warnings.warn(
+                'Length inconsistent!'
+                f'Early stop with {i + 1} out of {len(frames)} frames.'
+            )
+            break
+    run_success = 0
+
+    # if run_success == 0:
+    #     print(f'{task} {vid_id} {vid_path} done')
+    #     sys.stdout.flush()
+
+    #     lock.acquire()
+    #     with open(report_file, 'a') as f:
+    #         line = full_path + '\n'
+    #         f.write(line)
+    #     lock.release()
+    # else:
+    #     print(f'{task} {vid_id} {vid_path}  got something wrong')
+    #     sys.stdout.flush()
+
+    return run_success
+
+
+# def init(lock_):
+#     global lock
+#     lock = lock_
 
 if __name__ == '__main__':
     args = parse_args()
@@ -103,16 +153,34 @@ if __name__ == '__main__':
             
             # Extract frames for each segment: 
             for i,row in df_vid.iterrows():
-                s,e = int(row['Start Time'])*fps,int(row['End Time'])*fps
+                s_time,e_time = int(row['Start Time']),int(row['End Time'])
+                camera_view, label = row['Camera View'], row['Label/Class ID'] 
                 # We clip the first and last 1.75 seconds to avoid the edge effects
-                vid_start = vid[s-tol:s+tol]
-                vid_fg = vid[s+tol:e-tol]
-                vid_end = vid[e-tol:e+tol]
+                s,e=s_time*fps , e_time*fps
                 import pdb; pdb.set_trace()
+                vid_fg = crop_resize_write_vid(vid[s+tol:e-tol], view=camera_view,
+                                out_full_path=os.path.join(args.out_dir,
+                                            label,f'{vid_name}_{s_time}_{e_time}'))
+                vid_start = crop_resize_write_vid(vid[s-tol:s+tol], view=camera_view, 
+                                out_full_path=os.path.join(args.out_dir,
+                                            18,f'{vid_name}_{s_time}'))
+                vid_end = crop_resize_write_vid(vid[e-tol:e+tol], view=camera_view,
+                                out_full_path=os.path.join(args.out_dir,
+                                            19,f'{vid_name}_{e_time}'))
+                
                 if i < len(df_vid)-1:
                     # We ignore the background frames after the last action
-                    next_s = int(df_vid.iloc[i+1]['Start Time']*fps)
-                    vid_bg = vid[e+tol:next_s-tol]
+                    next_s_time = int(df_vid.iloc[i+1]['Start Time'])
+                    vid_bg = crop_resize_write_vid(vid[e+tol:next_s_time*fps-tol], view=camera_view,
+                                out_full_path=os.path.join(args.out_dir,
+                                            0,f'{vid_name}_{e_time}_{next_s_time}'))
+
+                # Save the frames
+                if not os.path.exists():
+                    os.makedirs(os.path.join(args.out_dir,label))
+                
+
+                
                 
 
 
