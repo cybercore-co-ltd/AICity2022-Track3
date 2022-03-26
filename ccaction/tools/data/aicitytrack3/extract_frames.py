@@ -14,31 +14,25 @@ from logging import raiseExceptions
 import os
 import pandas as pd
 import os.path as osp
-import sys
 import warnings
 from multiprocessing import Lock, Pool
-from datetime import datetime
 import mmcv
 import numpy as np
-
+from tqdm import tqdm
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='extract optical flows')
     parser.add_argument('--src_dir', type=str, help='source video directory', 
-                        default='/ssd3/data/ai-city-2022/Track3/raw_video/A1')
-    parser.add_argument('--out_dir', type=str, help='output rawframe directory')
+                        default='/ssd3/data/ai-city-2022/Track3/raw_video/A2')
+    parser.add_argument('--out_dir', type=str, help='output rawframe directory',
+                        default='/ssd3/data/ai-city-2022/Track3/raw_frames/A2')
+    parser.add_argument( '--fps', type=int, default=30, help='fps')
     parser.add_argument(
         '--num-worker',
         type=int,
-        default=8,
+        default=10,
         help='number of workers to build rawframes')
-    parser.add_argument(
-        '--out-format',
-        type=str,
-        default='jpg',
-        choices=['jpg', 'h5', 'png'],
-        help='output format')
     parser.add_argument(
         '--new-width', type=int, default=0, help='resize image width')
     parser.add_argument(
@@ -59,17 +53,20 @@ def parse_args():
 
 def crop_resize_write_vid(frames, view, out_full_path):
     # Different view has different crop areas
-    if view=='Dashboard':
+    if 'Dashboard' in view:
         frames = [f[140:1000,510:1760,:] for f in frames]
-    elif view=='Rear':
+    elif 'Rear' in view:
         frames = [f[140:1000,820:,:] for f in frames]
-    elif view=='Rightside':
+    elif 'Right' in view:
         frames = [f[80:1000,750:,:] for f in frames]
     else:
         raiseExceptions('view not supported')
 
     run_success = -1
-
+    # Save the frames
+    if not osp.exists(out_full_path):
+        os.makedirs(out_full_path)
+        
     for i, vr_frame in enumerate(frames):
         if vr_frame is not None:
             w, h, _ = np.shape(vr_frame)
@@ -114,70 +111,134 @@ def crop_resize_write_vid(frames, view, out_full_path):
 
     return run_success
 
-
-# def init(lock_):
-#     global lock
-#     lock = lock_
-
-if __name__ == '__main__':
-    args = parse_args()
-    csv_files = glob.glob(os.path.join(args.src_dir,'annotations', '*.csv'))
-    fps=30
-    tol=int(1.75*fps)
+def parsing_csv_files():
+    csv_files = glob.glob(osp.join(args.src_dir,'annotations', '*.csv'))
+    
+    user_videos={}
     for csv_file in csv_files:
         df = pd.read_csv(csv_file)
         user_id=csv_file.split('/')[-1].split('.')[0]
 
         # Convert the start and end time to seconds
+        if len(df['Start Time'][0].split(':'))==2:
+            # Fix the format on several csv files
+            df['Start Time'] = '00:' + df['Start Time'] 
+            df['End Time'] = '00:' + df['End Time'] 
         df['Start Time'] = pd.to_timedelta(df['Start Time']).dt.total_seconds()
         df['End Time'] = pd.to_timedelta(df['End Time']).dt.total_seconds()
 
         # Get the video for each view by splitting the rows
-        rows_with_filename = df[~df['Filename'].isnull()]
+        rows_with_filename = df[(~df['Filename'].isnull()) 
+                                & (df['Filename']!=' ')]
+        
         row_start = list(rows_with_filename.index.values)
         video_names = rows_with_filename['Filename'].values
+
+        # Fix inconsistent video names
+        id = user_id.split('_')[-1]
+        if id in ['49381','35133']:
+            video_names=[vid_name.replace('User','user') for vid_name in video_names]
+        elif id in ['72519','65818','79336']:
+            video_names=[vid_name.replace('user','User') for vid_name in video_names]
+        video_names = [vid_name.strip() for vid_name in video_names]
+
         row_end = row_start[1:]
         row_end.append(len(df.index))
 
         # Split the df by video views
         df_list = []
         for rs,re in zip(row_start,row_end):
-            df_list.append(df.iloc[rs:re])
+            df_vid = df.iloc[rs:re]
+            df_vid = df_vid[(df_vid['Label/Class ID']!='N/A')
+                            & (df_vid['Label/Class ID']!='NA ')
+                            & (df_vid['Label/Class ID']!='nan')
+                            & (df_vid['Label/Class ID']!='NaN')
+                            & (~df_vid['Label/Class ID'].isnull())]
+            df_vid['Label/Class ID']=df_vid['Label/Class ID'].astype(int)
+            df_vid = df_vid[df_vid['Label/Class ID']>0]
+            df_list.append(df_vid)
+        user_videos[user_id.strip()]=(video_names, df_list)
+    return user_videos
 
+def extract_frames(vid_items):
+    # Open videos
+    vid_name,df_vid,user_id,src_dir,out_dir,fps = vid_items
+    vid_path = osp.join(src_dir,user_id,
+                            vid_name[:-1] + 'NoAudio_' + vid_name[-1]+'.MP4')
+    print(f'Extracting frames for video: {vid_path}')
+    vid = mmcv.VideoReader(vid_path) 
+    # Extract frames for each segment: 
+    for index, row in tqdm(df_vid.iterrows(), total=df_vid.shape[0]):
+        s_time,e_time = int(row['Start Time']),int(row['End Time'])
+        camera_view, label = row['Camera View'], row['Label/Class ID']
+        # We clip the first and last 1-1.5 seconds to avoid the edge effects
+        s,e=s_time*fps , e_time*fps
+
+        tol=int(min(1,0.1*(e_time-s_time))*fps) 
+        fg_path=osp.join(out_dir,f'{label}',f'{vid_name}_{s_time}_{e_time}')
+        if (not osp.exists(fg_path)) or (len(os.listdir(fg_path))<e-s-2*tol) :
+            # if folder does not exist or the folder is empty
+            crop_resize_write_vid(vid[s+tol:e-tol], view=camera_view,
+                                out_full_path=fg_path)
+
+        tol=int(1.5*fps) 
+        start_path=osp.join(out_dir,'start',f'{vid_name}_{s_time}')
+        if (not osp.exists(start_path)) or (len(os.listdir(start_path))<2*tol) :
+            crop_resize_write_vid(vid[s-tol:s+tol], view=camera_view, 
+                                out_full_path=start_path)
+
+        tol=int(1.5*fps) 
+        end_path =osp.join(out_dir,'end',f'{vid_name}_{e_time}')
+        if (not osp.exists(end_path)) or (len(os.listdir(end_path))<2*tol):
+            crop_resize_write_vid(vid[e-tol:e+tol], view=camera_view,
+                out_full_path=end_path)
+        
+        if index < len(df_vid)-1:
+            # We ignore the background frames after the last action
+            next_s_time = int(df_vid.iloc[index+1]['Start Time'])
+            next_s = next_s_time*fps
+            tol=int(min(1,0.1*(next_s_time-e_time))*fps) 
+            if next_s-tol > e+tol:
+                bg_path=osp.join(args.out_dir,'0',f'{vid_name}_{e_time}_{next_s_time}')
+                if (not osp.exists(bg_path)) or (len(os.listdir(bg_path))<next_s-e-2*tol):
+                    crop_resize_write_vid(vid[e+tol:next_s-tol], view=camera_view,
+                        out_full_path=bg_path)
+
+
+def init(lock_):
+    global lock
+    lock = lock_
+
+if __name__ == '__main__':
+    args = parse_args()
+
+    if not osp.isdir(args.out_dir):
+        print(f'Creating folder: {args.out_dir}')
+        os.makedirs(args.out_dir)
+
+    print('Parsing CSV files')
+    user_videos=parsing_csv_files()  
+
+    for user_id, (video_names, df_list) in user_videos.items():
         # Extract video frames
-        for vid_name,df_vid in zip(video_names,df_list):
-            # Open videos
-            vid_path = os.path.join(args.src_dir,user_id,
-                                    vid_name[:-1] + 'NoAudio_' + vid_name[-1]+'.MP4')
-            vid = mmcv.VideoReader(vid_path) 
-            
-            # Extract frames for each segment: 
-            for i,row in df_vid.iterrows():
-                s_time,e_time = int(row['Start Time']),int(row['End Time'])
-                camera_view, label = row['Camera View'], row['Label/Class ID'] 
-                # We clip the first and last 1.75 seconds to avoid the edge effects
-                s,e=s_time*fps , e_time*fps
-                import pdb; pdb.set_trace()
-                vid_fg = crop_resize_write_vid(vid[s+tol:e-tol], view=camera_view,
-                                out_full_path=os.path.join(args.out_dir,
-                                            label,f'{vid_name}_{s_time}_{e_time}'))
-                vid_start = crop_resize_write_vid(vid[s-tol:s+tol], view=camera_view, 
-                                out_full_path=os.path.join(args.out_dir,
-                                            18,f'{vid_name}_{s_time}'))
-                vid_end = crop_resize_write_vid(vid[e-tol:e+tol], view=camera_view,
-                                out_full_path=os.path.join(args.out_dir,
-                                            19,f'{vid_name}_{e_time}'))
-                
-                if i < len(df_vid)-1:
-                    # We ignore the background frames after the last action
-                    next_s_time = int(df_vid.iloc[i+1]['Start Time'])
-                    vid_bg = crop_resize_write_vid(vid[e+tol:next_s_time*fps-tol], view=camera_view,
-                                out_full_path=os.path.join(args.out_dir,
-                                            0,f'{vid_name}_{e_time}_{next_s_time}'))
+        print("Extracting frames for user: ", user_id)
 
-                # Save the frames
-                if not os.path.exists():
-                    os.makedirs(os.path.join(args.out_dir,label))
+        n_videos = len(video_names)
+        lock = Lock()
+        pool = Pool(args.num_worker, initializer=init, initargs=(lock, ))
+        pool.map(
+            extract_frames,
+            zip(video_names,df_list,
+                n_videos* [user_id],
+                n_videos* [args.src_dir],
+                n_videos* [args.out_dir],
+                n_videos* [args.fps]))
+        pool.close()
+        pool.join()
+
+            
+
+
                 
 
                 
