@@ -114,25 +114,15 @@ class SampleFramesNonOverlap(SampleFrames):
 
 @PIPELINES.register_module()
 class RandSampleFrames(SampleFrames):
-    def __init__(self, range=(4,6), dataset_name='K400', *args, **kwargs):
+    def __init__(self, range=(12,18), *args, **kwargs):
         self.range = range
-        self.dataset_name = dataset_name
         super(RandSampleFrames, self).__init__(*args, **kwargs)
 
     def __call__(self, results):
-        
-        if self.dataset_name=='sth2sth':
-            total_frames = results['total_frames']
-            real_interval = total_frames/self.clip_len
-            max_interval = random.randint(self.range[0],self.range[1])
-            if real_interval > max_interval:
-                self.frame_interval = max_interval
-            else:
-                self.frame_interval = math.floor(real_interval) if real_interval> 1 else 1
-
-        else:
-            self.frame_interval = random.randint(self.range[0],self.range[1])
-        
+        total_frames = results['total_frames']
+        real_interval = max(1,total_frames//self.clip_len)
+        rand_interval = random.randint(self.range[0],self.range[1])
+        self.frame_interval = min(rand_interval, real_interval)
         return super().__call__(results)
 
 @PIPELINES.register_module()

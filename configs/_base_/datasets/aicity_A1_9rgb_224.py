@@ -1,16 +1,14 @@
 dataset_type = 'RawframeDataset'
-# data_root = '/ssd3/data/kinetics400/'
-# data_root = '/raid/data/kinetics400/'
-data_root = '/media/data/ai-city-2022/Track3/video_tsp/'
+data_root = '/ssd3/data/ai-city-2022/Track3/raw_frames/'
 
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
 image_size = 224
 train_pipeline = [
     dict(type='RandSampleFrames', clip_len=9,
-         range=(6,12), num_clips=1),
+         range=(12,18), num_clips=2),
     dict(type='RawFrameDecode'),
-    dict(type='Resize', scale=(-1, 256)),
+    # dict(type='Resize', scale=(-1, 256)),
     dict(
         type='MultiScaleCrop',
         input_size=224,
@@ -20,17 +18,19 @@ train_pipeline = [
         num_fixed_crops=13),
     dict(type='Resize', scale=(image_size, image_size), keep_ratio=False),
     # dict(type='Flip', flip_ratio=0.5),
+    dict(type='Imgaug', transforms='default'),
     dict(type='Normalize', **img_norm_cfg),
+    dict(type='RandomErasing', probability=0.2),
     dict(type='FormatShape', input_format='NCHW'),
     dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
     dict(type='ToTensor', keys=['imgs', 'label'])
 ] 
 val_pipeline = [
     dict(
-        type='SampleFrames',
+        type='AdaptSampleFrames',
         clip_len=9,
-        frame_interval=8,
-        num_clips=1, 
+        frame_interval=15,
+        num_clips=2, 
         test_mode=True),
     dict(type='RawFrameDecode'),
     dict(type='Resize', scale=(-1, 256)),
@@ -44,10 +44,10 @@ val_pipeline = [
 
 test_pipeline = [
     dict(
-        type='SampleFrames',
+        type='AdaptSampleFrames',
         clip_len=9,
         frame_interval=8,
-        num_clips=1,
+        num_clips=8,
         test_mode=True),
     dict(type='RawFrameDecode'),
     dict(type='Resize', scale=(-1, 256)),
@@ -63,16 +63,16 @@ data = dict(
     workers_per_gpu=4,
     train=dict(
         type=dataset_type,
-        ann_file=data_root+'tsp_train.txt',
-        data_prefix=data_root+'rawframes_train',
+        ann_file=data_root+'A1/A1.txt',
+        data_prefix=data_root+'A1',
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
-        ann_file=data_root+'tsp_val.txt',
-        data_prefix=data_root+'rawframes_val',
+        ann_file=data_root+'A2/A2.txt',
+        data_prefix=data_root+'A2',
         pipeline=val_pipeline),
     test=dict(
         type=dataset_type,
-        ann_file=data_root+'tsp_val.txt',
-        data_prefix=data_root+'rawframes_val',
+        ann_file=data_root+'A2/A2.txt',
+        data_prefix=data_root+'A2',
         pipeline=val_pipeline))

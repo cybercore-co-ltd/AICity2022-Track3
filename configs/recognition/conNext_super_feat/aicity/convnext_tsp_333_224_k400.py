@@ -21,7 +21,7 @@ model = dict(
                         num_classes=18,
                         dropout_ratio=0.3),
         actioness_head = dict(type='TSNHead',
-                        num_classes=2,
+                        num_classes=4,
                         dropout_ratio=0.3),
        ),
 
