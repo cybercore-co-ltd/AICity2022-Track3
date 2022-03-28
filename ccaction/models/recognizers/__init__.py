@@ -1,1 +1,2 @@
 from .vidconv_recognizer import VidConvRecognizer
+from .tsp_recognizer import TSPRecognizer
