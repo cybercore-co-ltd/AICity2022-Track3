@@ -155,7 +155,7 @@ class AdaptSampleFrames(SampleFrames):
 @PIPELINES.register_module()
 class CcDecordInit(DecordInit):
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self,*args, **kwargs):
         super().__init__(*args, **kwargs)
         
     def __call__(self, results):
@@ -176,20 +176,35 @@ class CcDecordInit(DecordInit):
     
 @PIPELINES.register_module()
 class CcDecordDecode(DecordDecode):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, crop_drive=False, *args, **kwargs):
+        self.crop_drive=crop_drive
         super().__init__(*args, **kwargs)
         
     def __call__(self, results):
-        
+        #----- rear view
         results_rearview = results.copy()
         results_rearview['filename'] = results_rearview['other_view'][0]['filename']
         results_rearview['video_reader'] = results_rearview['other_view'][0]['video_reader']
+        results_rearview['total_frames'] = results_rearview['other_view'][0]['total_frames']
+        frame_ids = results_rearview['frame_inds']
+        
+        desire_ids = np.where(frame_ids >= results_rearview['total_frames'])[0]
+        frame_ids[desire_ids] = results_rearview['total_frames']-1
+        results_rearview['frame_inds'] = frame_ids
         results_rearview['other_view']=None
         
+        #----- rightside view
         results_rightside = results.copy()
         results_rightside['filename'] = results_rightside['other_view'][1]['filename']
         results_rightside['video_reader'] = results_rightside['other_view'][1]['video_reader']
+        frame_ids = results_rightside['frame_inds']
+        results_rightside['total_frames'] = results_rightside['other_view'][1]['total_frames']
+        
+        desire_ids = np.where(frame_ids >= results_rightside['total_frames'])[0]
+        frame_ids[desire_ids] = results_rightside['total_frames']-1
+        results_rightside['frame_inds'] = frame_ids
         results_rightside['other_view']=None
+        
         
         results['other_view']=None
         
@@ -197,6 +212,12 @@ class CcDecordDecode(DecordDecode):
         results_rearview = super().__call__(results_rearview)
         results_rightside = super().__call__(results_rightside)
         
+        if self.crop_drive:
+            height, width = results['img_shape']
+            results['imgs'] = [tmp[:, 380:width-120] for tmp in results['imgs']]
+            results_rearview['imgs'] = [tmp[:, 750:] for tmp in results_rearview['imgs']]
+            results_rightside['imgs'] = [tmp[:, 750:] for tmp in results_rightside['imgs']]
+            
         # combine results['imgs']= [Dashboard, rearview, rightside]
         results['imgs'] = results['imgs'] + results_rearview['imgs'] + results_rightside['imgs']
         results["view_name"] = [results['filename'], results_rearview['filename'], results_rightside['filename']]

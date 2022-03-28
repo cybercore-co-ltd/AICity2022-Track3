@@ -35,6 +35,7 @@ class VidConvRecognizer(Recognizer2D):
         batches = imgs.shape[0]
         num_segs = imgs.shape[1]//self.clip_frames
         imgs = imgs.reshape((-1, ) + imgs.shape[2:])
+        
         x = self.extract_feat(imgs)
         
         # x: list of T elements. each element have size NCHW

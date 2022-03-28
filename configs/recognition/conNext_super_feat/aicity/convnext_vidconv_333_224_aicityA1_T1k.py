@@ -7,7 +7,7 @@ model = dict(
     backbone=dict(
         type='ConvNextVidBaseTem',
         arch='tiny',
-        drop_path_rate=0.25,
+        drop_path_rate=0.4,
         init_cfg=dict(type='Pretrained', checkpoint="tiny_1k")
     ),
     cls_head=dict(
@@ -19,7 +19,7 @@ model = dict(
         kernel_size=3,
         dilation=7,
         norm_cfg=dict(type='SyncBN', requires_grad=True),
-        dropout_ratio=0.3),
+        dropout_ratio=0.5),
     test_cfg=dict(average_clips='prob'),
     train_cfg=None,
 )
@@ -27,7 +27,7 @@ model = dict(
 #----------- AdamW
 optimizer = dict(_delete_=True,
                  type='AdamW',
-                 lr=0.0005,
+                 lr=0.0008,
                  betas=(0.9, 0.999),
                  weight_decay=0.0005,
                  paramwise_cfg=dict(
@@ -44,12 +44,12 @@ lr_config = dict(_delete_=True,
                  warmup_by_epoch=True,
                  warmup_iters=1)
 
-total_epochs = 24
+total_epochs = 25
 # find_unused_parameters = True
 fp16 = dict(loss_scale=512.0)
 # runtime settings
-checkpoint_config = dict(interval=1, max_keep_ckpts=5)
-log_config = dict(interval=5, hooks=[dict(type='TextLoggerHook')])
-evaluation = dict(interval=1, metrics='top_k_accuracy')
-load_from = 'http://118.69.233.170:60001/open/VidConvNext/convnext_vidconv_333_224_kinetics400_T1k/convnext_vidconv_333_224_kinetics400_T1k_epoch_24.pth'
+checkpoint_config = dict(interval=5)
+log_config = dict(interval=10, hooks=[dict(type='TextLoggerHook')])
+evaluation = dict(interval=5, metrics='top_k_accuracy')
+load_from = '/home/cybercore/vinh_overal/AICity2022-Track3/best_e10.pth'
 resume_from = None
