@@ -18,7 +18,7 @@ model = dict(
         expand_ratio=0.25,
         norm_cfg=dict(type='SyncBN', requires_grad=True),
         action_label_head = dict(type='TSNHead', 
-                        num_classes=18,
+                        num_classes=17,
                         dropout_ratio=0.3),
         actioness_head = dict(type='TSNHead',
                         num_classes=4,
