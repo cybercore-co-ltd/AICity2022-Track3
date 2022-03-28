@@ -56,10 +56,11 @@ class TSPHead(nn.Module):
         self.actioness_branch.init_weights()
     
     def loss(self, scores, labels, **kwargs):
-        foreground_idx = labels < self.cls_branch.num_classes 
+        foreground_idx = labels < self.cls_branch.num_classes and labels >0
         num_foreground = foreground_idx.sum()
+
         if num_foreground >0:
-            cls_labels = labels[foreground_idx]
+            cls_labels = labels[foreground_idx] - 1
             cls_score = scores[0][foreground_idx]
             cls_loss = self.cls_branch.loss(cls_score, cls_labels, **kwargs)
         else:
@@ -68,6 +69,8 @@ class TSPHead(nn.Module):
         
         actioness_labels = torch.zeros_like(labels)
         actioness_labels[foreground_idx] = 1
+        actioness_labels[labels==18]= 2
+        actioness_labels[labels==19]= 3
         actioness_loss = self.actioness_branch.loss(scores[1], actioness_labels, **kwargs)
 
         cls_loss['loss_actioness']=actioness_loss['loss_cls']
