@@ -131,9 +131,7 @@ def parsing_csv_files():
         rows_with_filename = df[(~df['Filename'].isnull()) 
                                 & (df['Filename']!=' ')]
         
-        row_start = list(rows_with_filename.index.values)
         video_names = rows_with_filename['Filename'].values
-
         # Fix inconsistent video names
         id = user_id.split('_')[-1]
         if id in ['49381','35133']:
@@ -142,6 +140,7 @@ def parsing_csv_files():
             video_names=[vid_name.replace('user','User') for vid_name in video_names]
         video_names = [vid_name.strip() for vid_name in video_names]
 
+        row_start = list(rows_with_filename.index.values)
         row_end = row_start[1:]
         row_end.append(len(df.index))
 
@@ -157,6 +156,7 @@ def parsing_csv_files():
             df_vid['Label/Class ID']=df_vid['Label/Class ID'].astype(int)
             df_vid = df_vid[df_vid['Label/Class ID']>0]
             df_list.append(df_vid)
+
         user_videos[user_id.strip()]=(video_names, df_list)
     return user_videos
 
@@ -168,6 +168,10 @@ def extract_frames(vid_items):
     print(f'Extracting frames for video: {vid_path}')
     vid = mmcv.VideoReader(vid_path) 
     # Extract frames for each segment: 
+ 
+    # if '72519' in user_id:
+    #     import pdb; pdb.set_trace()
+    df_vid = df_vid.reset_index()
     for index, row in tqdm(df_vid.iterrows(), total=df_vid.shape[0]):
         s_time,e_time = int(row['Start Time']),int(row['End Time'])
         camera_view, label = row['Camera View'], row['Label/Class ID']
@@ -195,6 +199,9 @@ def extract_frames(vid_items):
         
         if index < len(df_vid)-1:
             # We ignore the background frames after the last action
+            # if vid_name=='Rightside_window_User_id_72519_3' and label==10:
+            #     import pdb; pdb.set_trace()
+
             next_s_time = int(df_vid.iloc[index+1]['Start Time'])
             next_s = next_s_time*fps
             tol=int(min(1,0.1*(next_s_time-e_time))*fps) 
@@ -222,7 +229,9 @@ if __name__ == '__main__':
     for user_id, (video_names, df_list) in user_videos.items():
         # Extract video frames
         print("Extracting frames for user: ", user_id)
-
+        # for vid_name, df_vid in zip(video_names,df_list):
+        #     extract_frames((vid_name,df_vid,user_id,args.src_dir,args.out_dir,args.fps))
+        
         n_videos = len(video_names)
         lock = Lock()
         pool = Pool(args.num_worker, initializer=init, initargs=(lock, ))

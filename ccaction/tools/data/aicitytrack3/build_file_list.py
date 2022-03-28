@@ -41,6 +41,8 @@ def main():
 
     file_list =[]
     for frame_dir in tqdm(frame_dirs):
+        # if 'Dashboard_user_id_42271_3_127_148' in frame_dir:
+        #     import pdb; pdb.set_trace()
         num_files = count_files(frame_dir)
         if num_files > 60:
             name=locate_directory(frame_dir)
