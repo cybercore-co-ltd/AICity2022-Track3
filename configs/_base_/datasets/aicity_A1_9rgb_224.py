@@ -6,7 +6,7 @@ img_norm_cfg = dict(
 image_size = 224
 train_pipeline = [
     dict(type='RandSampleFrames', clip_len=9,
-         range=(12,18), num_clips=2),
+         range=(12,18), num_clips=4),
     dict(type='RawFrameDecode'),
     # dict(type='Resize', scale=(-1, 256)),
     dict(
@@ -30,7 +30,7 @@ val_pipeline = [
         type='AdaptSampleFrames',
         clip_len=9,
         frame_interval=15,
-        num_clips=2, 
+        num_clips=4, 
         test_mode=True),
     dict(type='RawFrameDecode'),
     dict(type='Resize', scale=(-1, 256)),
@@ -46,7 +46,7 @@ test_pipeline = [
     dict(
         type='AdaptSampleFrames',
         clip_len=9,
-        frame_interval=8,
+        frame_interval=15,
         num_clips=8,
         test_mode=True),
     dict(type='RawFrameDecode'),
@@ -59,7 +59,7 @@ test_pipeline = [
 ]
 
 data = dict(
-    videos_per_gpu=8,
+    videos_per_gpu=16,
     workers_per_gpu=4,
     train=dict(
         type=dataset_type,

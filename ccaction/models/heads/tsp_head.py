@@ -57,7 +57,7 @@ class TSPHead(nn.Module):
     
     def loss(self, scores, labels, **kwargs):
         # import ipdb; ipdb.set_trace()
-        foreground_idx = (labels<self.cls_branch.num_classes) & (labels>0)
+        foreground_idx = (labels<=self.cls_branch.num_classes) & (labels>0)
         num_foreground = foreground_idx.sum()
 
         if num_foreground >0:
@@ -70,8 +70,8 @@ class TSPHead(nn.Module):
         
         actioness_labels = torch.zeros_like(labels)
         actioness_labels[foreground_idx] = 1
-        actioness_labels[labels==18]= 2
-        actioness_labels[labels==19]= 3
+        actioness_labels[labels==(self.cls_branch.num_classes+1)]= 2
+        actioness_labels[labels==(self.cls_branch.num_classes+2)]= 3
         actioness_loss = self.actioness_branch.loss(scores[1], actioness_labels, **kwargs)
 
         cls_loss['loss_actioness']=actioness_loss['loss_cls']
