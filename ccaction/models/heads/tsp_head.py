@@ -56,7 +56,8 @@ class TSPHead(nn.Module):
         self.actioness_branch.init_weights()
     
     def loss(self, scores, labels, **kwargs):
-        foreground_idx = labels < self.cls_branch.num_classes and labels >0
+        # import ipdb; ipdb.set_trace()
+        foreground_idx = (labels<self.cls_branch.num_classes) & (labels>0)
         num_foreground = foreground_idx.sum()
 
         if num_foreground >0:

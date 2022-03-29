@@ -98,18 +98,20 @@ class TSP_RawframeDataset(RawframeDataset):
                     topk = (topk, )
 
                 # get foreground
+                # import ipdb; ipdb.set_trace()
                 arr_labels = np.array(gt_labels)
-                foreground_idx = arr_labels < 18 and arr_labels >0
+                foreground_idx = (arr_labels < 18) & (arr_labels >0)
 
                 # actioness label
                 actioness_labels = np.zeros_like(arr_labels)
                 actioness_labels[foreground_idx] = 1
-                actioness_labels[labels==18]= 2
-                actioness_labels[labels==19]= 3
+                actioness_labels[arr_labels==18]= 2
+                actioness_labels[arr_labels==19]= 3
                 
                 # cls label
+                # import ipdb; ipdb.set_trace()
                 cls_labels = arr_labels[foreground_idx] - 1
-                cls_score = cls_score[foreground_idx]
+                cls_score = np.array(cls_score)[foreground_idx]
 
                 # actioness
                 top_k_acc = top_k_accuracy(actioness_score, actioness_labels, topk)
@@ -121,7 +123,7 @@ class TSP_RawframeDataset(RawframeDataset):
                 # print_log(log_msg, logger=logger)
 
                 # cls
-                top_k_acc = top_k_accuracy(cls_score, cls_labels, topk)
+                top_k_acc = top_k_accuracy(cls_score.tolist(), cls_labels, topk)
                 for k, acc in zip(topk, top_k_acc):
                     eval_results[f'top{k}_acc_cls'] = acc
                     log_msg.append(f'\ntop{k}_acc_cls\t{acc:.4f}')

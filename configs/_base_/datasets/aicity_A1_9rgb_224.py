@@ -1,4 +1,4 @@
-dataset_type = 'RawframeDataset'
+dataset_type = 'TSP_RawframeDataset'
 data_root = '/ssd3/data/ai-city-2022/Track3/raw_frames/'
 
 img_norm_cfg = dict(
@@ -63,16 +63,16 @@ data = dict(
     workers_per_gpu=4,
     train=dict(
         type=dataset_type,
-        ann_file=data_root+'A1/A1.txt',
+        ann_file=data_root+'A1.txt',
         data_prefix=data_root+'A1',
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
-        ann_file=data_root+'A2/A2.txt',
+        ann_file=data_root+'A2.txt',
         data_prefix=data_root+'A2',
         pipeline=val_pipeline),
     test=dict(
         type=dataset_type,
-        ann_file=data_root+'A2/A2.txt',
+        ann_file=data_root+'A2.txt',
         data_prefix=data_root+'A2',
         pipeline=val_pipeline))

@@ -3,7 +3,7 @@ _base_ = ['../../../mmaction/_base_/default_runtime.py',
           '../../../_base_/datasets/aicity_A1_9rgb_224.py']
 custom_imports = dict(imports=['ccaction'], allow_failed_imports=False)
 model = dict(
-    type='VidConvRecognizer',
+    type='TSPRecognizer',
     backbone=dict(
         type='ConvNextVidBaseTem',
         arch='tiny',
