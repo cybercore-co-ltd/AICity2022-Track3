@@ -35,8 +35,21 @@ class VidConvRecognizer(Recognizer2D):
         batches = imgs.shape[0]
         num_segs = imgs.shape[1]//self.clip_frames
         imgs = imgs.reshape((-1, ) + imgs.shape[2:])
-        
         x = self.extract_feat(imgs)
+        
+        # frames = imgs.shape[1] // 3 # with 3 here is 3 views
+        # imgs =imgs.reshape((batches,3, frames) + imgs.shape[2:])
+        # imgs = torch.transpose(imgs, 0,1)
+        # x = []
+        # for idx in range(len(imgs)):
+        #     view = imgs[idx]
+        #     view = view.reshape((-1, ) + view.shape[2:])
+        #     view = self.extract_feat(view)
+        #     x.append(view)
+        # x = torch.stack(x)
+        # x = rearrange(x, 'v (b l) c h w -> b (v l) c h w', b=batches)
+        # _, _, channel, height, width= x.shape
+        # x = x.view(-1, channel, height,width)
         
         # x: list of T elements. each element have size NCHW
         if self.with_neck:
@@ -52,6 +65,7 @@ class VidConvRecognizer(Recognizer2D):
 
         # should have cls_head if not extracting features
         cls_score = self.cls_head(x, num_segs)
+        
         if isinstance(cls_score, tuple):
             cls_score = cls_score[0]
         assert cls_score.size()[0] % batches == 0

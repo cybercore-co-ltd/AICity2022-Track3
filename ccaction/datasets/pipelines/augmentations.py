@@ -2,7 +2,9 @@ import timm.data as tdata
 import torch
 import random
 import numpy as np
+import mmcv
 from mmaction.datasets import PIPELINES
+from mmaction.datasets.pipelines import Resize
 
 @PIPELINES.register_module()
 class RandomErasing(tdata.random_erasing.RandomErasing):
@@ -38,3 +40,27 @@ class RandomErasing(tdata.random_erasing.RandomErasing):
         assert results['img_shape'] == (img_h, img_w)
 
         return results
+    
+    
+@PIPELINES.register_module()
+class CCResize(Resize):
+    def __init__(self,
+                 crop_driver=False,
+                 *args, **kwargs):
+        self.crop_driver = crop_driver
+        super().__init__(*args, **kwargs)
+
+    def __call__(self, results):
+        if self.crop_driver:
+            h,w = results['img_shape']
+            crop_driver_imgs = []
+            for img in results['imgs']:
+                if 'Dashboard' in results['filename']:
+                    vr_frame = img[:,380:w-120]
+                elif 'Right_side' in results['filename']:
+                    vr_frame = img[:, 750:]
+                else:
+                    vr_frame = img[:, 750:]
+                crop_driver_imgs.append(mmcv.imresize(vr_frame, (w,h)))
+            results['imgs'] = crop_driver_imgs
+        return super().__call__(results)
