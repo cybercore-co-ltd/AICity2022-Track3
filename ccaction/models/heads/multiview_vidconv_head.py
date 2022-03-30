@@ -23,6 +23,7 @@ class MultiviewVidConvHead(TSNHead):
                     kernel_size=3, 
                     dilation=7,
                     norm_cfg=None,
+                    num_clip=5,
                     **kwargs):
         fc_chn = int(in_channels * expand_ratio)
         super().__init__(num_classes,fc_chn,loss_cls=loss_cls,
@@ -37,24 +38,51 @@ class MultiviewVidConvHead(TSNHead):
                         norm_cfg=norm_cfg,
                         act_cfg=None
                         ),)
-
-        self.second_temp_conv = nn.Sequential(
-                        ConvModule(
-                        fc_chn*3,
-                        fc_chn,
-                        kernel_size=1,
-                        dilation=1,
-                        norm_cfg=norm_cfg,
-                        act_cfg=None
-                        ),
-                        nn.GELU())
+        self.numclip_conv = ConvModule(
+                                fc_chn,
+                                fc_chn,
+                                kernel_size=(1, num_clip-2),
+                                )
+        self.view_conv = ConvModule(
+                                fc_chn,
+                                fc_chn,
+                                kernel_size=3,
+                                )
+        # self.second_temp_conv = nn.Sequential(
+        #                 ConvModule(
+        #                 fc_chn*3,
+        #                 fc_chn,
+        #                 kernel_size=1,
+        #                 dilation=1,
+        #                 norm_cfg=norm_cfg,
+        #                 act_cfg=None
+        #                 ),
+        #                 nn.GELU())
         
-    def forward(self, x, num_segs):
+    def forward(self, x, num_segs, batches=1):
         x = self.temp_conv(x) #B,C,3H,3W --> B,3C,H,W
+            
+        if self.avg_pool is not None:
+            if isinstance(x, tuple):
+                shapes = [y.shape for y in x]
+                assert 1 == 0, f'x is tuple {shapes}'
+            x = self.avg_pool(x)
+            # [N * num_segs, in_channels, 1, 1]
         
-        # stack 3 view
-        num_segs=1
-        bs = x.shape[0] // 3
-        x = torch.cat([x[:bs], x[bs:2*bs], x[2*bs:]], axis=1)
-        x = self.second_temp_conv(x)
-        return super().forward(x, num_segs)
+        _, channel, height, width = x.shape
+        x = x.reshape(x.shape[0], -1) # [bs, in_channels]
+        x = x.reshape((-1, num_segs) + x.shape[1:])
+        
+        x = rearrange(x, 'b (v l) f -> b f v l', v=3) # [batch feature view num_clip]
+        
+        x = self.numclip_conv(x) # [batch, feature, 3,3]
+        x = self.view_conv(x) # [N, in_channels, 1, 1]
+                
+        if self.dropout is not None:
+            x = self.dropout(x)
+        
+        x = x.view(x.size(0), -1)
+        # [N, in_channels]
+        cls_score = self.fc_cls(x)
+        # [N, num_classes]
+        return cls_score
