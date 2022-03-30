@@ -3,13 +3,29 @@ _base_ = ['../../../mmaction/_base_/default_runtime.py',
           '../../../_base_/datasets/aicity_A1_9rgb_224.py']
 custom_imports = dict(imports=['ccaction'], allow_failed_imports=False)
 model = dict(
-    type='TSPRecognizer',
+    type='NoFogettingRecognizer',
+    off_model = dict(
+        config='/home/ccvn/Workspace/suhuynh/AICity2022-Track3/configs/recognition/conNext_super_feat/Kinetics400/convnext_vidconv_333_224_kinetics400_T1k.py',
+        checkpoint='http://118.69.233.170:60001/open/VidConvNext/convnext_vidconv_333_224_kinetics400_T1k/convnext_vidconv_333_224_kinetics400_T1k_epoch_24.pth'
+    ),
     backbone=dict(
         type='ConvNextVidBaseTem',
         arch='tiny',
         drop_path_rate=0.25,
         init_cfg=dict(type='Pretrained', checkpoint="tiny_1k")
     ),
+    
+    kl_head=dict(
+        type='VidConvHead',
+        in_channels=768,
+        num_classes=400,
+        spatial_type='avg',
+        expand_ratio=3,
+        kernel_size=3,
+        dilation=7,
+        norm_cfg=dict(type='SyncBN', requires_grad=True),
+        dropout_ratio=0.2),
+
     cls_head=dict(
         type='TSPHead',
         in_channels=768,
@@ -19,13 +35,13 @@ model = dict(
         norm_cfg=dict(type='SyncBN', requires_grad=True),
         action_label_head = dict(type='TSNHead', 
                         num_classes=17,
-                        # multi_class=True,
-                        # label_smooth_eps=0.2,
+                        multi_class=True,
+                        label_smooth_eps=0.2,
                         dropout_ratio=0.3),
         actioness_head = dict(type='TSNHead',
                         num_classes=4,
-                        # multi_class=True,
-                        # label_smooth_eps=0.3,
+                        multi_class=True,
+                        label_smooth_eps=0.3,
                         dropout_ratio=0.3),
        ),
 
