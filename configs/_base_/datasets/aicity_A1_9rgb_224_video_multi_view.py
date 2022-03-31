@@ -7,11 +7,11 @@ img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
 image_size = 224
 train_pipeline = [
-    dict(type='DecordInit'),
+    dict(type='CcDecordInit'),
     dict(type='RandSampleFrames', clip_len=9,
-         range=(24,30), num_clips=1),
-    dict(type='DecordDecode'),#, crop_drive=True),
-    dict(type='CCResize', scale=(-1, 256)),
+         range=(12,15), num_clips=4),
+    dict(type='CcDecordDecode'),#, crop_drive=True),
+    dict(type='Resize', scale=(-1, 256)),
     dict(
         type='MultiScaleCrop',
         input_size=224,
@@ -28,15 +28,15 @@ train_pipeline = [
     dict(type='ToTensor', keys=['imgs', 'label'])
 ] 
 val_pipeline = [
-    dict(type='DecordInit'),
+    dict(type='CcDecordInit'),
     dict(
         type='SampleFrames',
         clip_len=9,
-        frame_interval=30,
-        num_clips=1, 
+        frame_interval=15,
+        num_clips=4, 
         test_mode=True),
-    dict(type='DecordDecode'),#,crop_drive=True),
-    dict(type='CCResize', scale=(-1, 256)),
+    dict(type='CcDecordDecode'),#,crop_drive=True),
+    dict(type='Resize', scale=(-1, 256)),
     dict(type='CenterCrop', crop_size=image_size),
     # dict(type='ThreeCrop', crop_size=224),
     dict(type='Normalize', **img_norm_cfg),
@@ -63,11 +63,11 @@ test_pipeline = [
 ]
 
 data = dict(
-    videos_per_gpu=6,
+    videos_per_gpu=1,
     workers_per_gpu=2,
     train=dict(
         type='RepeatDataset',  # Wrapper of dataset, refer to https://github.com/open-mmlab/mmdetection/blob/master/mmdet/datasets/dataset_wrappers.py for details.
-        times=3,  # Repeat times
+        times=1,  # Repeat times
         dataset=dict(
             type=dataset_type,
             ann_file=data_root+'train.csv',

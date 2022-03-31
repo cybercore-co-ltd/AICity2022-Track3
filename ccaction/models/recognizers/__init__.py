@@ -1,1 +1,2 @@
 from .vidconv_recognizer import VidConvRecognizer
+from .vidconv_multiview_recognizer import VidConvMultiViewRecognizer

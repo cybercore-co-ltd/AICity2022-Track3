@@ -76,8 +76,8 @@ class MultiviewVidConvHead(TSNHead):
         x = rearrange(x, 'b (v l) f -> b f v l', v=3) # [batch feature view num_clip]
         
         x = self.numclip_conv(x) # [batch, feature, 3,3]
+        
         x = self.view_conv(x) # [N, in_channels, 1, 1]
-                
         if self.dropout is not None:
             x = self.dropout(x)
         

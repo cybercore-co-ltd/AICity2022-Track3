@@ -1,9 +1,9 @@
 _base_ = ['../../../mmaction/_base_/default_runtime.py',
           '../../../mmaction/_base_/schedules/sgd_50e.py',
-          '../../../_base_/datasets/aicity_A1_9rgb_224_video.py']
+          '../../../_base_/datasets/aicity_A1_9rgb_224_video_multi_view.py']
 custom_imports = dict(imports=['ccaction'], allow_failed_imports=False)
 model = dict(
-    type='VidConvRecognizer',
+    type='VidConvMultiViewRecognizer',
     backbone=dict(
         type='ConvNextVidBaseTem',
         arch='tiny',
@@ -19,7 +19,8 @@ model = dict(
         kernel_size=3,
         dilation=7,
         norm_cfg=dict(type='SyncBN', requires_grad=True),
-        dropout_ratio=0.5),
+        dropout_ratio=0.5,
+        num_clip=4),
     test_cfg=dict(average_clips='prob'),
     train_cfg=None,
 )
@@ -27,7 +28,7 @@ model = dict(
 #----------- AdamW
 optimizer = dict(_delete_=True,
                  type='AdamW',
-                 lr=0.0008,
+                 lr=0.001,
                  betas=(0.9, 0.999),
                  weight_decay=0.0005,
                  paramwise_cfg=dict(
@@ -49,7 +50,7 @@ total_epochs = 25
 fp16 = dict(loss_scale=512.0)
 # runtime settings
 checkpoint_config = dict(interval=5)
-log_config = dict(interval=10, hooks=[dict(type='TextLoggerHook')])
+log_config = dict(interval=5, hooks=[dict(type='TextLoggerHook')])
 evaluation = dict(interval=5, metrics='top_k_accuracy')
-load_from = '/home/cybercore/vinh_overal/AICity2022-Track3/best_e10.pth'
+load_from = "http://118.69.233.170:60001/open/VidConvNext/convnext_vidconv_333_224_kinetics400_T1k/convnext_vidconv_333_224_kinetics400_T1k_epoch_24.pth"
 resume_from = None
