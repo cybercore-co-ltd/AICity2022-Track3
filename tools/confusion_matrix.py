@@ -16,7 +16,7 @@ if __name__=='__main__':
         warnings.simplefilter('ignore')  # suppress empty matrix RuntimeWarning: All-NaN slice encountered
         sns.heatmap(cf_mat, annot=True, annot_kws={"size": 8}, cmap='Blues', square=True)
         
-    fig.axes[0].set_xlabel('True')
-    fig.axes[0].set_ylabel('Predicted')
+    fig.axes[0].set_xlabel('Predicted')
+    fig.axes[0].set_ylabel('True')
     fig.savefig('confusion_matrix.png', dpi=250)
     plt.close()
