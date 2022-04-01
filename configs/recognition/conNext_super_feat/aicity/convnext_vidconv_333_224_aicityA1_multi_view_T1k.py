@@ -3,7 +3,7 @@ _base_ = ['../../../mmaction/_base_/default_runtime.py',
           '../../../_base_/datasets/aicity_A1_9rgb_224_video_multi_view.py']
 custom_imports = dict(imports=['ccaction'], allow_failed_imports=False)
 model = dict(
-    type='VidConvMultiViewRecognizer',
+    type='VidConvRecognizer',
     backbone=dict(
         type='ConvNextVidBaseTem',
         arch='tiny',
@@ -13,14 +13,14 @@ model = dict(
     cls_head=dict(
         type='MultiviewVidConvHead',
         in_channels=768,
-        num_classes=18,
+        num_classes=17,
         spatial_type='avg',
         expand_ratio=0.25,
         kernel_size=3,
         dilation=7,
         norm_cfg=dict(type='SyncBN', requires_grad=True),
         dropout_ratio=0.5,
-        num_clip=4),
+        num_clip=5),
     test_cfg=dict(average_clips='prob'),
     train_cfg=None,
 )
