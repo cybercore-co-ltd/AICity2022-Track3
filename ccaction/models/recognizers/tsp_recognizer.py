@@ -1,6 +1,7 @@
 from mmaction.models.builder import RECOGNIZERS
 from .vidconv_recognizer import VidConvRecognizer
 from mmcv.runner import auto_fp16
+import torch.nn.functional as F
 
 @RECOGNIZERS.register_module()
 class TSPRecognizer(VidConvRecognizer):
@@ -35,10 +36,22 @@ class TSPRecognizer(VidConvRecognizer):
         actioness_score = self.average_clip(score[1],
                                     score[1].size()[0] // batches)
 
-        return (cls_score.cpu().numpy(), actioness_score.cpu().numpy())
+        return (cls_score.cpu().detach().numpy(), actioness_score.cpu().detach().numpy())
 
     @auto_fp16()
     def forward_test(self, imgs):
         """Defines the computation performed at every call when evaluation and
         testing."""
         return self._do_test(imgs)
+    
+    @auto_fp16()
+    def forward_backbone(self, imgs):
+        batches = imgs.shape[0]
+        num_segs = imgs.shape[1]//self.clip_frames
+        imgs = imgs.reshape((-1, ) + imgs.shape[2:])
+        x = self.extract_feat(imgs)
+        x = F.adaptive_avg_pool2d(x, (1, 1)).view(-1, x.shape[1])
+        return x
+
+
+    

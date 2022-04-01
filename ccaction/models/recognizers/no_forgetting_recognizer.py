@@ -25,7 +25,8 @@ class NoFogettingRecognizer(Recognizer2D):
         self.off_model.eval()
 
         self.clip_frames = self.backbone.clip_frames
-        self.kl_loss = nn.KLDivLoss(log_target=True)
+        # self.kl_loss = nn.KLDivLoss(log_target=True)
+        # self.distill_loss = nn.CrossEntropyLoss()
         
     def forward_train_(self, imgs, labels, num_segs=1,**kwargs):
         x = self.extract_feat(imgs)
@@ -34,8 +35,7 @@ class NoFogettingRecognizer(Recognizer2D):
 
         if self.kl_head is not None:
             kl_logit = self.kl_head(x, num_segs)
-            kl_logit = F.log_softmax(kl_logit)
-
+            kl_logit = F.softmax(kl_logit)
         cls_score = self.cls_head(x, num_segs)
         gt_labels = labels.squeeze().long()
         loss = self.cls_head.loss(cls_score, gt_labels,  **kwargs)
@@ -44,10 +44,10 @@ class NoFogettingRecognizer(Recognizer2D):
         with torch.no_grad():
             batches = imgs.shape[0]//num_segs//self.clip_frames
             off_logit = self.off_model.forward_offline(imgs, num_segs, batches)
-            off_logit = F.log_softmax(off_logit)
+            off_logit = F.softmax(off_logit)
+        # loss_kl = self.distill_loss(kl_logit, off_logit)
+        loss['loss_distill'] = -0.1*torch.sum(off_logit*torch.log(kl_logit), dim=1).mean()
         
-        loss_kl = self.kl_loss(kl_logit, off_logit)
-        loss['loss_kl'] = loss_kl
         return loss
 
     @auto_fp16()
