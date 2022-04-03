@@ -2,7 +2,7 @@ import numpy as np
 import random
 import math
 from mmaction.datasets.builder import PIPELINES
-from mmaction.datasets.pipelines import SampleFrames
+from mmaction.datasets.pipelines import SampleFrames, RawFrameDecode
 from mmaction.datasets.pipelines import SampleAVAFrames
 
 @PIPELINES.register_module()
@@ -138,3 +138,25 @@ class AdaptSampleFrames(SampleFrames):
         self.frame_interval = min(max(1,real_interval),self.max_interval)
        
         return super().__call__(results)
+
+@PIPELINES.register_module()
+class RawFrameDecode_multi_views(RawFrameDecode):
+    def __call__(self, results):
+        
+        results_rear = results.copy()
+        results_rear['frame_dir'] = results_rear['frame_dir'].replace('Dashboard', 'Rear_view')
+        
+        results_right = results.copy()
+        if '24026' in results_right['frame_dir'] or '49381' in results_right['frame_dir'] or \
+            '42271' in results_right['frame_dir'] :
+            results_right['frame_dir'] = results_rear['frame_dir'].replace('Dashboard', 'Right_side_window')
+        else:
+            results_right['frame_dir'] = results_rear['frame_dir'].replace('Dashboard', 'Rightside_window')
+
+        results = super().__call__(results)
+        results_rear = super().__call__(results_rear)
+        results_right = super().__call__(results_right)
+
+        results['imgs'] = results['imgs'] + results_rear['imgs'] + results_right['imgs']
+
+        return results
