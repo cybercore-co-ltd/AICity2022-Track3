@@ -51,10 +51,10 @@ lr_config = dict(_delete_=True,
                  min_lr=5e-6,
                  by_epoch=True,
                  warmup='linear',
-                 warmup_by_epoch=True,
-                 warmup_iters=1)
+                 warmup_by_epoch=False,
+                 warmup_iters=64)
 
-total_epochs = 24
+total_epochs = 12
 # find_unused_parameters = True
 # fp16 = dict(loss_scale=512.0)
 # runtime settings

@@ -20,7 +20,7 @@ train_pipeline = [
     # dict(type='Flip', flip_ratio=0.5),
     dict(type='Imgaug', transforms='default'),
     dict(type='Normalize', **img_norm_cfg),
-    # dict(type='RandomErasing', probability=0.2),
+    dict(type='RandomErasing', probability=0.2),
     dict(type='FormatShape', input_format='NCHW'),
     dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
     dict(type='ToTensor', keys=['imgs', 'label'])
@@ -64,10 +64,14 @@ data = dict(
     videos_per_gpu=8,
     workers_per_gpu=4,
     train=dict(
-        type=dataset_type,
-        ann_file=data_root+'A1.txt',
-        data_prefix=data_root+'A1',
-        pipeline=train_pipeline),
+        type='RepeatDataset',
+        times=4,
+        dataset=dict(
+            type=dataset_type,
+            ann_file=data_root+'A1.txt',
+            data_prefix=data_root+'A1',
+            pipeline=train_pipeline),
+        ),
     val=dict(
         type=dataset_type,
         ann_file=data_root+'A2.txt',
