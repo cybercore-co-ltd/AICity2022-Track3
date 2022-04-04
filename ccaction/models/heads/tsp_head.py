@@ -1,14 +1,11 @@
 from typing import Optional
-from numpy import zeros_like
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from mmcv.cnn.bricks import DropPath, ConvModule
-from mmcv.cnn.utils.weight_init import trunc_normal_, trunc_normal_init
-from einops import rearrange
+from mmcv.cnn.bricks import ConvModule
+
 
 from mmaction.models.builder import HEADS 
-from mmaction.models.heads.tsn_head import TSNHead
 from mmaction.models import builder
 
 @HEADS.register_module()
