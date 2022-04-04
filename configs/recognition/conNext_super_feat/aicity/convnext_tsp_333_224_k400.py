@@ -11,13 +11,15 @@ model = dict(
         # init_cfg=dict(type='Pretrained', checkpoint="tiny_1k")
         init_cfg=None,
     ),
-    cls_head=dict(
-        type='TSPHead',
+    neck=dict(type='Tem_Conv',
         in_channels=768,
         kernel_size=3,
         dilation=7,
         expand_ratio=0.25,
-        norm_cfg=dict(type='SyncBN', requires_grad=True),
+        norm_cfg=dict(type='SyncBN', requires_grad=True),), 
+    cls_head=dict(
+        type='TSPHead',
+        in_channels=192,
         action_label_head = dict(type='TSNHead', 
                         num_classes=17,
                         multi_class=True,
