@@ -54,7 +54,7 @@ lr_config = dict(_delete_=True,
                  warmup_iters=1)
 
 total_epochs = 24
-find_unused_parameters = True
+# find_unused_parameters = True
 # fp16 = dict(loss_scale=512.0)
 # runtime settings
 checkpoint_config = dict(interval=1, max_keep_ckpts=5)
