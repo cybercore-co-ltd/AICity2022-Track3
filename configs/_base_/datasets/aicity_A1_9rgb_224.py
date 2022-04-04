@@ -20,7 +20,7 @@ train_pipeline = [
     # dict(type='Flip', flip_ratio=0.5),
     dict(type='Imgaug', transforms='default'),
     dict(type='Normalize', **img_norm_cfg),
-    dict(type='RandomErasing', probability=0.2),
+    # dict(type='RandomErasing', probability=0.2),
     dict(type='FormatShape', input_format='NCHW'),
     dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
     dict(type='ToTensor', keys=['imgs', 'label'])

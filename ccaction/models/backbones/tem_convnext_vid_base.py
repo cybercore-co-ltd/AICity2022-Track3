@@ -1,12 +1,8 @@
-from cv2 import sqrt
 import torch.nn as nn
 import torch
 from mmaction.models import BACKBONES
 from einops import rearrange
 from ccaction.models.backbones.convnext import ConvNeXt, Block, LayerNorm
-from mmcv.cnn.bricks import DropPath
-from mmcv.cnn.utils.weight_init import trunc_normal_
-import math
 
 
 class TempBlock(Block):
