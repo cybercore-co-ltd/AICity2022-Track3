@@ -41,12 +41,12 @@ class MultiviewVidConvHead(TSNHead):
         self.numclip_conv = ConvModule(
                                 fc_chn,
                                 fc_chn,
-                                kernel_size=(1, num_clip-2),
+                                kernel_size=(1, num_clip),
                                 )
         self.view_conv = ConvModule(
                                 fc_chn,
                                 fc_chn,
-                                kernel_size=3,
+                                kernel_size=(3,1),
                                 )
         # self.second_temp_conv = nn.Sequential(
         #                 ConvModule(
