@@ -3,7 +3,7 @@ _base_ = ['../../../mmaction/_base_/default_runtime.py',
           '../../../_base_/datasets/aicity_multi_views_9rgb_224.py']
 custom_imports = dict(imports=['ccaction'], allow_failed_imports=False)
 model = dict(
-    type='TSPRecognizer',
+    type='TSP_Multiviews_Recognizer',
     backbone=dict(
         type='ConvNextVidBaseTem',
         arch='tiny',
@@ -11,7 +11,7 @@ model = dict(
         init_cfg=dict(type='Pretrained', checkpoint="tiny_1k")
     ),
     cls_head=dict(
-        type='TSPHead',
+        type='TSPHead_multiviews',
         in_channels=768,
         kernel_size=3,
         dilation=7,
@@ -19,11 +19,13 @@ model = dict(
         norm_cfg=dict(type='SyncBN', requires_grad=True),
         action_label_head = dict(type='TSNHead', 
                         num_classes=17,
+                        spatial_type='None',
                         multi_class=True,
                         label_smooth_eps=0.2,
                         dropout_ratio=0.3),
         actioness_head = dict(type='TSNHead',
                         num_classes=4,
+                        spatial_type='None',
                         multi_class=True,
                         label_smooth_eps=0.3,
                         dropout_ratio=0.3),

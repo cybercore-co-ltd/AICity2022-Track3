@@ -6,7 +6,7 @@ img_norm_cfg = dict(
 image_size = 224
 train_pipeline = [
     dict(type='RandSampleFrames', clip_len=9,
-         range=(12,18), num_clips=4),
+         range=(12,18), num_clips=5),
     dict(type='RawFrameDecode_multi_views'),
     # dict(type='Resize', scale=(-1, 256)),
     dict(
@@ -30,9 +30,9 @@ val_pipeline = [
         type='AdaptSampleFrames',
         clip_len=9,
         frame_interval=15,
-        num_clips=4, 
+        num_clips=5, 
         test_mode=True),
-    dict(type='RawFrameDecode'),
+    dict(type='RawFrameDecode_multi_views'),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='CenterCrop', crop_size=image_size),
     # dict(type='ThreeCrop', crop_size=224),
@@ -47,9 +47,9 @@ test_pipeline = [
         type='AdaptSampleFrames',
         clip_len=9,
         frame_interval=15,
-        num_clips=8,
+        num_clips=5,
         test_mode=True),
-    dict(type='RawFrameDecode'),
+    dict(type='RawFrameDecode_multi_views'),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='CenterCrop', crop_size=image_size),
     dict(type='Normalize', **img_norm_cfg),
@@ -59,8 +59,8 @@ test_pipeline = [
 ]
 
 data = dict(
-    videos_per_gpu=8,
-    workers_per_gpu=0,
+    videos_per_gpu=2,
+    workers_per_gpu=4,
     train=dict(
         type=dataset_type,
         ann_file=data_root+'Dashboard_A1.txt',

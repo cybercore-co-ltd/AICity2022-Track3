@@ -113,6 +113,11 @@ class TSP_RawframeDataset(RawframeDataset):
                 cls_labels = arr_labels[foreground_idx] - 1
                 cls_score = np.array(cls_score)[foreground_idx]
 
+                #save score and labels
+                # score = [np.argmax(x) for x in cls_score]
+                # np.save('score.npy', score)
+                # np.save('label.npy', cls_labels)  
+                # import ipdb; ipdb.set_trace()
                 # actioness
                 top_k_acc = top_k_accuracy(actioness_score, actioness_labels, topk)
                 log_msg = []

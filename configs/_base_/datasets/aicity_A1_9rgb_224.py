@@ -6,7 +6,7 @@ img_norm_cfg = dict(
 image_size = 224
 train_pipeline = [
     dict(type='RandSampleFrames', clip_len=9,
-         range=(12,18), num_clips=4),
+         range=(27,33), num_clips=4),
     dict(type='RawFrameDecode'),
     # dict(type='Resize', scale=(-1, 256)),
     dict(

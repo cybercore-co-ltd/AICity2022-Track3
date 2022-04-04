@@ -34,6 +34,19 @@ class TSPHead_multiviews(nn.Module):
                         act_cfg=None
                         ),
                         nn.GELU())
+        
+        self.numclip_conv = ConvModule(
+                                fc_chn,
+                                fc_chn,
+                                kernel_size=(1,3),
+                                )
+        self.view_conv = ConvModule(
+                                fc_chn,
+                                fc_chn,
+                                kernel_size=3,
+                                )
+        self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
+
         if action_label_head is None or actioness_head is None:
             raise ImportError('Please add head config')
         else:
@@ -44,9 +57,24 @@ class TSPHead_multiviews(nn.Module):
     
     def forward(self, x, num_segs):
         x = self.temp_conv(x) #B,C,3H,3W --> B,3C,H,W
+        if isinstance(x, tuple):
+                shapes = [y.shape for y in x]
+                assert 1 == 0, f'x is tuple {shapes}'
+        x = self.avg_pool(x)
+
+        x = x.reshape(x.shape[0], -1) # [bs, in_channels]
+        x = x.reshape((-1, num_segs) + x.shape[1:])
         
-        cls_score = self.cls_branch(x, num_segs)
-        actioness_score = self.actioness_branch(x, num_segs)
+        x = rearrange(x, 'b (v l) f -> b f v l', v=3) # [batch feature view num_clip]
+        
+        x = self.numclip_conv(x) # [batch, feature, 3,3]
+        
+        x = self.view_conv(x) # [N, in_channels, 1, 1]
+        
+        x = x.view(x.size(0), -1)
+
+        cls_score = self.cls_branch(x, num_segs=1)
+        actioness_score = self.actioness_branch(x, num_segs=1)
 
         return (cls_score, actioness_score)
 
@@ -79,6 +107,6 @@ class TSPHead_multiviews(nn.Module):
         actioness_loss = self.actioness_branch.loss(scores[1], actioness_labels_oh, **kwargs)
 
         cls_loss['loss_actioness']=actioness_loss['loss_cls']
-            
+        # import ipdb; ipdb.set_trace()
         return cls_loss
         
