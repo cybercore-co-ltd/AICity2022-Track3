@@ -56,22 +56,27 @@ class TSPHead(nn.Module):
 
         with torch.no_grad():
             foreground_idx = (labels<=self.cls_branch.num_classes) & (labels>0)
+            
             num_foreground = foreground_idx.sum()
             cls_labels = labels[foreground_idx] - 1
             cls_labels_1h = F.one_hot(cls_labels, num_classes=17)
         if num_foreground >0:
             cls_score = scores[0][foreground_idx]
-            cls_loss = self.cls_branch.loss(cls_score, cls_labels_1h, **kwargs)
+            # print(cls_score.size(), cls_labels_1h.size())
+            cls_loss = self.cls_branch.loss(cls_score.view(-1, self.cls_branch.num_classes), cls_labels_1h, **kwargs)
         else:
             cls_loss = dict(loss_cls=0.0*scores[0][0])
         
         with torch.no_grad():
             actioness_labels = torch.zeros_like(labels)
             actioness_labels[foreground_idx] = 1
-            actioness_labels[labels==(self.cls_branch.num_classes+1)]= 2
-            actioness_labels[labels==(self.cls_branch.num_classes+2)]= 3
-            actioness_labels_1h = F.one_hot(actioness_labels, num_classes=4)
-        actioness_loss = self.actioness_branch.loss(scores[1], actioness_labels_1h, **kwargs)
+            select_idx = actioness_labels<=1
+            actioness_labels = actioness_labels[select_idx]
+            actioness_score = scores[1][select_idx]
+            # actioness_labels[labels==(self.cls_branch.num_classes+1)]= 2
+            # actioness_labels[labels==(self.cls_branch.num_classes+2)]= 3
+            actioness_labels_1h = F.one_hot(actioness_labels, num_classes=2)
+        actioness_loss = self.actioness_branch.loss(actioness_score.view(-1, 2), actioness_labels_1h, **kwargs)
 
         cls_loss['loss_actioness']=actioness_loss['loss_cls']
             

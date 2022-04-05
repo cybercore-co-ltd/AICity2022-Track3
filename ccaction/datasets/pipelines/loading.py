@@ -140,18 +140,20 @@ class AdaptSampleFrames(SampleFrames):
         return super().__call__(results)
 
 @PIPELINES.register_module()
-class RawFrameDecode_multi_views(RawFrameDecode):
+class RawFrameDecode_multiviews(RawFrameDecode):
     def __call__(self, results):
         
         results_rear = results.copy()
-        results_rear['frame_dir'] = results_rear['frame_dir'].replace('Dashboard', 'Rear_view')
+        results_rear['frame_dir'] = results_rear['frame_dir_rear']
+        # results_rear['frame_dir'] = results_rear['frame_dir'].replace('Dashboard', 'Rear_view')
         
         results_right = results.copy()
-        if '24026' in results_right['frame_dir'] or '49381' in results_right['frame_dir'] or \
-            '42271' in results_right['frame_dir'] :
-            results_right['frame_dir'] = results_rear['frame_dir'].replace('Dashboard', 'Right_side_window')
-        else:
-            results_right['frame_dir'] = results_rear['frame_dir'].replace('Dashboard', 'Rightside_window')
+        results_right['frame_dir'] = results_right['frame_dir_right']
+        # if '24026' in results_right['frame_dir'] or '49381' in results_right['frame_dir'] or \
+        #     '42271' in results_right['frame_dir'] :
+        #     results_right['frame_dir'] = results_rear['frame_dir'].replace('Dashboard', 'Right_side_window')
+        # else:
+        #     results_right['frame_dir'] = results_rear['frame_dir'].replace('Dashboard', 'Rightside_window')
 
         results = super().__call__(results)
         results_rear = super().__call__(results_rear)

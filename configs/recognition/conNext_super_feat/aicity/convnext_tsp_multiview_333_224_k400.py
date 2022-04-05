@@ -10,13 +10,16 @@ model = dict(
         drop_path_rate=0.25,
         init_cfg=dict(type='Pretrained', checkpoint="tiny_1k")
     ),
-    cls_head=dict(
-        type='TSPHead_multiviews',
+
+    neck=dict(type='Tem_Conv_multiviews',
         in_channels=768,
         kernel_size=3,
         dilation=7,
         expand_ratio=0.25,
-        norm_cfg=dict(type='SyncBN', requires_grad=True),
+        norm_cfg=dict(type='SyncBN', requires_grad=True),), 
+    cls_head=dict(
+        type='TSPHead',
+        in_channels=192,
         action_label_head = dict(type='TSNHead', 
                         num_classes=17,
                         spatial_type='None',
@@ -24,12 +27,33 @@ model = dict(
                         label_smooth_eps=0.2,
                         dropout_ratio=0.3),
         actioness_head = dict(type='TSNHead',
-                        num_classes=4,
+                        num_classes=2,
                         spatial_type='None',
                         multi_class=True,
-                        label_smooth_eps=0.3,
+                        label_smooth_eps=0.1,
                         dropout_ratio=0.3),
        ),
+    
+    # cls_head=dict(
+    #     type='TSPHead_multiviews',
+    #     in_channels=768,
+    #     kernel_size=3,
+    #     dilation=7,
+    #     expand_ratio=0.25,
+    #     norm_cfg=dict(type='SyncBN', requires_grad=True),
+    #     action_label_head = dict(type='TSNHead', 
+    #                     num_classes=17,
+    #                     spatial_type='None',
+    #                     multi_class=True,
+    #                     label_smooth_eps=0.2,
+    #                     dropout_ratio=0.3),
+    #     actioness_head = dict(type='TSNHead',
+    #                     num_classes=4,
+    #                     spatial_type='None',
+    #                     multi_class=True,
+    #                     label_smooth_eps=0.3,
+    #                     dropout_ratio=0.3),
+    #    ),
 
     test_cfg=dict(average_clips='prob'),
     train_cfg=None,
@@ -38,7 +62,7 @@ model = dict(
 #----------- AdamW
 optimizer = dict(_delete_=True,
                  type='AdamW',
-                 lr=0.001,
+                 lr=0.001/3,
                  betas=(0.9, 0.999),
                  weight_decay=0.0005,
                  paramwise_cfg=dict(
@@ -55,7 +79,7 @@ lr_config = dict(_delete_=True,
                  warmup_by_epoch=True,
                  warmup_iters=1)
 
-total_epochs = 24
+total_epochs = 50
 find_unused_parameters = True
 # fp16 = dict(loss_scale=512.0)
 # runtime settings
