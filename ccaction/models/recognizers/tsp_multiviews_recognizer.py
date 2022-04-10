@@ -97,11 +97,29 @@ class TSP_Multiviews_Recognizer(TSPRecognizer):
     
     @auto_fp16()
     def forward_backbone(self, imgs):
+        
         batches = imgs.shape[0]
         num_segs = imgs.shape[1]//self.clip_frames
-        imgs = imgs.reshape((-1, ) + imgs.shape[2:])
-        x = self.extract_feat(imgs)
-        x = F.adaptive_avg_pool2d(x, (1, 1)).view(-1, x.shape[1])
+       
+        frames = imgs.shape[1] // 3
+        imgs =imgs.reshape((batches,3, frames) + imgs.shape[2:])
+        imgs = torch.transpose(imgs, 0,1)
+        x = []
+        for idx in range(len(imgs)):
+            view = imgs[idx]
+            view = view.reshape((-1, ) + view.shape[2:])
+            view = self.extract_feat(view)
+            x.append(view)
+        x = torch.stack(x)
+        x = rearrange(x, 'v (b l) c h w -> b (v l) c h w', b=batches)
+        _, _, channel, height, width= x.shape
+        x = x.reshape(-1, channel, height,width)
+        
+        # x: list of T elements. each element have size NCHW
+        if self.with_neck:
+            x = self.neck(x, num_segs)
+
+        # import ipdb; ipdb.set_trace()        
         return x
 
 

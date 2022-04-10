@@ -4,7 +4,7 @@ import math
 from mmaction.datasets.builder import PIPELINES
 from mmaction.datasets.pipelines import SampleFrames, RawFrameDecode
 from mmaction.datasets.pipelines import SampleAVAFrames
-
+import os
 @PIPELINES.register_module()
 class InvalidBoxFilter():
     """Filter invalid proposals and ground truths.
@@ -141,14 +141,26 @@ class AdaptSampleFrames(SampleFrames):
 
 @PIPELINES.register_module()
 class RawFrameDecode_multiviews(RawFrameDecode):
+    
+    def __init__(self, extract_feat=False,**kwargs):
+        super().__init__(**kwargs)
+
+        self.extract_feat = extract_feat
+
     def __call__(self, results):
         
         results_rear = results.copy()
-        results_rear['frame_dir'] = results_rear['frame_dir_rear']
-        # results_rear['frame_dir'] = results_rear['frame_dir'].replace('Dashboard', 'Rear_view')
-        
         results_right = results.copy()
-        results_right['frame_dir'] = results_right['frame_dir_right']
+        
+        if not self.extract_feat:
+            results_rear['frame_dir'] = results_rear['frame_dir_rear']
+            results_right['frame_dir'] = results_right['frame_dir_right']
+        else:
+            results_rear['frame_dir'] = results_rear['frame_dir'].replace("Dashboard", "Rear_view")
+            results_right['frame_dir'] = results_right['frame_dir'].replace("Dashboard", "Right_side_window")
+            if not os.path.exists(results_right['frame_dir']):
+                results_right['frame_dir'] = results_right['frame_dir'].replace("Right_side", "Rightside")
+
         # if '24026' in results_right['frame_dir'] or '49381' in results_right['frame_dir'] or \
         #     '42271' in results_right['frame_dir'] :
         #     results_right['frame_dir'] = results_rear['frame_dir'].replace('Dashboard', 'Right_side_window')

@@ -52,6 +52,17 @@ class TSPRecognizer(VidConvRecognizer):
         x = self.extract_feat(imgs)
         x = F.adaptive_avg_pool2d(x, (1, 1)).view(-1, x.shape[1])
         return x
+    
+    @auto_fp16()
+    def forward_to_neck(self, imgs):
+        batches = imgs.shape[0]
+        num_segs = imgs.shape[1]//self.clip_frames
+        imgs = imgs.reshape((-1, ) + imgs.shape[2:])
+        x = self.extract_feat(imgs)
+        if self.with_neck:
+            x = self.neck(x)
+        x = F.adaptive_avg_pool2d(x, (1, 1)).view(-1, x.shape[1])
+        return x
 
 
     

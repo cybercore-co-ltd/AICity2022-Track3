@@ -6,10 +6,9 @@ model = dict(
     type='TSPRecognizer',
     backbone=dict(
         type='ConvNextVidBaseTem',
-        arch='tiny',
-        drop_path_rate=0.25,
-        # init_cfg=dict(type='Pretrained', checkpoint="tiny_1k")
-        init_cfg=None,
+        arch='small',
+        drop_path_rate=0.4,
+        init_cfg=dict(type='Pretrained', checkpoint="small_1k")
     ),
     neck=dict(type='Tem_Conv',
         in_channels=768,
@@ -63,5 +62,5 @@ find_unused_parameters = True
 checkpoint_config = dict(interval=1, max_keep_ckpts=5)
 log_config = dict(interval=5, hooks=[dict(type='TextLoggerHook')])
 evaluation = dict(interval=1, metrics='top_k_accuracy')
-load_from = 'http://118.69.233.170:60001/open/VidConvNext/convnext_vidconv_333_224_kinetics400_T1k/convnext_vidconv_333_224_kinetics400_T1k_epoch_24.pth'
+load_from = 'http://118.69.233.170:60001/open/VidConvNext/convnext_vidconv_333_224_kinetics400_S1k/convnext_vidconv_333_224_kinetics400_S1k_epoch_22.pth'
 resume_from = None

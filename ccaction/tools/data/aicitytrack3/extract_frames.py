@@ -53,14 +53,27 @@ def parse_args():
 
 def crop_resize_write_vid(frames, view, out_full_path):
     # Different view has different crop areas
+    # if 'Dashboard' in view:
+    #     frames = [f[140:1000,510:1760,:] for f in frames]
+    # elif 'Rear' in view:
+    #     frames = [f[140:1000,820:,:] for f in frames]
+    # elif 'Right' in view:
+    #     frames = [f[80:1000,750:,:] for f in frames]
+    # else:
+    #     raiseExceptions('view not supported')
+
     if 'Dashboard' in view:
-        frames = [f[140:1000,510:1760,:] for f in frames]
+        frames = [f[:,380:1800,:] for f in frames]
     elif 'Rear' in view:
-        frames = [f[140:1000,820:,:] for f in frames]
+        frames = [f[:,750:,:] for f in frames]
     elif 'Right' in view:
-        frames = [f[80:1000,750:,:] for f in frames]
+        frames = [f[:,750:,:] for f in frames]
     else:
         raiseExceptions('view not supported')
+
+    #  results['imgs'] = [tmp[:, 380:width-120] for tmp in results['imgs']]
+    #     results_rear['imgs'] = [tmp[:, 750:] for tmp in results_rear['imgs']]
+    #     results_right['imgs'] = [tmp[:, 750:] for tmp in results_right['imgs']]
 
     run_success = -1
     # Save the frames

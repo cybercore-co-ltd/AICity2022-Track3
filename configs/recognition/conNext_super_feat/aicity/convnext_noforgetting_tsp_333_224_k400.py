@@ -14,6 +14,13 @@ model = dict(
         drop_path_rate=0.25,
         init_cfg=dict(type='Pretrained', checkpoint="tiny_1k")
     ),
+
+    neck=dict(type='Tem_Conv',
+        in_channels=768,
+        kernel_size=3,
+        dilation=7,
+        expand_ratio=1,
+        norm_cfg=dict(type='SyncBN', requires_grad=True),),
     
     kl_head=dict(
         type='VidConvHead',
@@ -29,17 +36,13 @@ model = dict(
     cls_head=dict(
         type='TSPHead',
         in_channels=768,
-        kernel_size=3,
-        dilation=7,
-        expand_ratio=0.25,
-        norm_cfg=dict(type='SyncBN', requires_grad=True),
         action_label_head = dict(type='TSNHead', 
                         num_classes=17,
                         multi_class=True,
                         label_smooth_eps=0.2,
                         dropout_ratio=0.3),
         actioness_head = dict(type='TSNHead',
-                        num_classes=4,
+                        num_classes=2,
                         multi_class=True,
                         label_smooth_eps=0.3,
                         dropout_ratio=0.3),
@@ -69,7 +72,7 @@ lr_config = dict(_delete_=True,
                  warmup_by_epoch=True,
                  warmup_iters=1)
 
-total_epochs = 24
+total_epochs = 12
 find_unused_parameters = True
 # fp16 = dict(loss_scale=512.0)
 # runtime settings

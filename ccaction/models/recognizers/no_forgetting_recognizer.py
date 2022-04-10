@@ -30,12 +30,14 @@ class NoFogettingRecognizer(Recognizer2D):
         
     def forward_train_(self, imgs, labels, num_segs=1,**kwargs):
         x = self.extract_feat(imgs)
-        if self.with_neck:
-            x = self.neck(x)
 
         if self.kl_head is not None:
             kl_logit = self.kl_head(x, num_segs)
             kl_logit = F.softmax(kl_logit)
+
+        if self.with_neck:
+            x = self.neck(x)
+
         cls_score = self.cls_head(x, num_segs)
         gt_labels = labels.squeeze().long()
         loss = self.cls_head.loss(cls_score, gt_labels,  **kwargs)
@@ -46,7 +48,7 @@ class NoFogettingRecognizer(Recognizer2D):
             off_logit = self.off_model.forward_offline(imgs, num_segs, batches)
             off_logit = F.softmax(off_logit)
         # loss_kl = self.distill_loss(kl_logit, off_logit)
-        loss['loss_distill'] = -0.1*torch.sum(off_logit*torch.log(kl_logit), dim=1).mean()
+        loss['loss_distill'] = -0.02*torch.sum(off_logit*torch.log(kl_logit), dim=1).mean()
         
         return loss
 
@@ -168,3 +170,12 @@ class NoFogettingRecognizer(Recognizer2D):
         # if 1:
         #     outs = nn.functional.softmax(outs)
         return outs
+
+    @auto_fp16()
+    def forward_backbone(self, imgs):
+        batches = imgs.shape[0]
+        num_segs = imgs.shape[1]//self.clip_frames
+        imgs = imgs.reshape((-1, ) + imgs.shape[2:])
+        x = self.extract_feat(imgs)
+        x = F.adaptive_avg_pool2d(x, (1, 1)).view(-1, x.shape[1])
+        return x

@@ -87,4 +87,4 @@ checkpoint_config = dict(interval=1, max_keep_ckpts=5)
 log_config = dict(interval=5, hooks=[dict(type='TextLoggerHook')])
 evaluation = dict(interval=1, metrics='top_k_accuracy')
 load_from = 'http://118.69.233.170:60001/open/VidConvNext/convnext_vidconv_333_224_kinetics400_T1k/convnext_vidconv_333_224_kinetics400_T1k_epoch_24.pth'
-resume_from = None
+resume_from = '/home/ccvn/Workspace/suhuynh/AICity2022-Track3/work_dirs/convnext_tsp_multiview_333_224_k400_combine_a1a2/epoch_33.pth'
