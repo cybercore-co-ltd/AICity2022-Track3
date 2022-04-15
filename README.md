@@ -39,7 +39,23 @@ MIM can automatically install OpenMMLab projects and their requirements.
 python setup.py develop
 ```
 
-
-
 # Training 
-## 1. Train 
+
+
+## 1. Pretrain backbone with TSP and Learning without Forgetting: 
+
+Train Round 1: Using A1 dataset:
+```
+./reproduce_scripts/pretrain_backbone/train_round1.sh
+```
+Train Round 2: Using A1 dataset and Pseudo Label on A2 (Pseudo-A2-v1):
+```
+./reproduce_scripts/pretrain_backbone/train_round2.sh
+```
+Note: We use result of Round 2 for the submission.
+Train Round 3: Using A1 dataset and Pseudo Label on A2 (Pseudo-A2-v2):
+```
+./reproduce_scripts/pretrain_backbone/train_round2.sh
+```
+Note: Round 3 is overfited to pseudo-label and not used for Public test. 
+
