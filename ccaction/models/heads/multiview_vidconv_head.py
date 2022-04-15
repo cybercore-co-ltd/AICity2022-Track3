@@ -1,8 +1,4 @@
-from tokenize import group
-from typing import Optional
-import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from mmcv.cnn.bricks import DropPath, ConvModule
 from mmcv.cnn.utils.weight_init import trunc_normal_, trunc_normal_init
 from einops import rearrange

@@ -1,5 +1,4 @@
 from .vidconv_recognizer import VidConvRecognizer
 from .tsp_recognizer import TSPRecognizer
 from .no_forgetting_recognizer import NoFogettingRecognizer
-from .tsp_multiviews_recognizer import TSP_Multiviews_Recognizer
 from .vidconv_multiview_recognizer import VidConvMultiViewRecognizer

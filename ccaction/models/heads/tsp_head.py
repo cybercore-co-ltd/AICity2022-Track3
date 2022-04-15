@@ -70,15 +70,18 @@ class TSPHead(nn.Module):
         with torch.no_grad():
             actioness_labels = torch.zeros_like(labels)
             actioness_labels[foreground_idx] = 1
+            actioness_labels[labels==(self.cls_branch.num_classes+1)]= 2
+            actioness_labels[labels==(self.cls_branch.num_classes+2)]= 3
             select_idx = actioness_labels<=1
+            
             actioness_labels = actioness_labels[select_idx]
             actioness_score = scores[1][select_idx]
-            # actioness_labels[labels==(self.cls_branch.num_classes+1)]= 2
-            # actioness_labels[labels==(self.cls_branch.num_classes+2)]= 3
             actioness_labels_1h = F.one_hot(actioness_labels, num_classes=2)
-        actioness_loss = self.actioness_branch.loss(actioness_score.view(-1, 2), actioness_labels_1h, **kwargs)
+        if select_idx.sum() >0:
+            actioness_loss = self.actioness_branch.loss(actioness_score.view(-1, 2), actioness_labels_1h, **kwargs)
+            cls_loss['loss_actioness']=actioness_loss['loss_cls']
+        else:
+            cls_loss['loss_actioness']=0*cls_loss['loss_cls']
 
-        cls_loss['loss_actioness']=actioness_loss['loss_cls']
-            
         return cls_loss
         

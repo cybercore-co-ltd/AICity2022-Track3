@@ -1,25 +1,26 @@
-_base_ = ['../../../mmaction/_base_/default_runtime.py',
-          '../../../mmaction/_base_/schedules/sgd_50e.py',
-          '../../../_base_/datasets/kinetics400_9rgb_224.py']
+_base_ = ['../mmaction/_base_/default_runtime.py',
+          '../mmaction/_base_/schedules/sgd_50e.py',
+          '../_base_/datasets/aicity_multi_views_9rgb_224_rawframe.py']
 custom_imports = dict(imports=['ccaction'], allow_failed_imports=False)
 model = dict(
-    type='VidConvRecognizer',
+    type='VidConvMultiViewRecognizer',
     backbone=dict(
         type='ConvNextVidBaseTem',
-        arch='base',
-        drop_path_rate=0.5,
-        init_cfg=dict(type='Pretrained', checkpoint="base_22k")
+        arch='tiny',
+        drop_path_rate=0.4,
+        init_cfg=dict(type='Pretrained', checkpoint="tiny_1k")
     ),
     cls_head=dict(
-        type='VidConvHead',
-        in_channels=1024,
-        num_classes=400,
+        type='MultiviewVidConvHead',
+        in_channels=768,
+        num_classes=17,
         spatial_type='avg',
-        expand_ratio=2,
+        expand_ratio=0.25,
         kernel_size=3,
         dilation=7,
         norm_cfg=dict(type='SyncBN', requires_grad=True),
-        dropout_ratio=0.2),
+        dropout_ratio=0.5,
+        num_clip=5),
     test_cfg=dict(average_clips='prob'),
     train_cfg=None,
 )
@@ -33,7 +34,7 @@ optimizer = dict(_delete_=True,
                  paramwise_cfg=dict(
                      custom_keys=dict(
                          norm=dict(decay_mult=0.0),
-                         backbone=dict(lr_mult=0.1))))
+                         backbone=dict(lr_mult=0.25))))
 
 optimizer_config = dict(_delete_=True, grad_clip=None)
 lr_config = dict(_delete_=True,
@@ -44,12 +45,12 @@ lr_config = dict(_delete_=True,
                  warmup_by_epoch=True,
                  warmup_iters=1)
 
-total_epochs = 24
+total_epochs = 25
 # find_unused_parameters = True
 fp16 = dict(loss_scale=512.0)
 # runtime settings
-checkpoint_config = dict(interval=1, max_keep_ckpts=5)
-log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
-evaluation = dict(interval=1, metrics='top_k_accuracy')
-load_from = None
+checkpoint_config = dict(interval=5)
+log_config = dict(interval=5, hooks=[dict(type='TextLoggerHook')])
+evaluation = dict(interval=5, metrics='top_k_accuracy')
+load_from = "http://118.69.233.170:60001/open/VidConvNext/convnext_vidconv_333_224_kinetics400_T1k/convnext_vidconv_333_224_kinetics400_T1k_epoch_24.pth"
 resume_from = None
