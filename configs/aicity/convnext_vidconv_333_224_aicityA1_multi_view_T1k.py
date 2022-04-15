@@ -1,6 +1,6 @@
 _base_ = ['../mmaction/_base_/default_runtime.py',
           '../mmaction/_base_/schedules/sgd_50e.py',
-          '../_base_/datasets/aicity_multi_views_9rgb_224_rawframe.py']
+          '../_base_/datasets/aicity_multi_views_9rgb_224_video.py']
 custom_imports = dict(imports=['ccaction'], allow_failed_imports=False)
 model = dict(
     type='VidConvMultiViewRecognizer',
@@ -45,12 +45,12 @@ lr_config = dict(_delete_=True,
                  warmup_by_epoch=True,
                  warmup_iters=1)
 
-total_epochs = 25
+total_epochs = 18
 # find_unused_parameters = True
 fp16 = dict(loss_scale=512.0)
 # runtime settings
-checkpoint_config = dict(interval=5)
+checkpoint_config = dict(interval=3)
 log_config = dict(interval=5, hooks=[dict(type='TextLoggerHook')])
-evaluation = dict(interval=5, metrics='top_k_accuracy')
+evaluation = dict(interval=3, metrics='top_k_accuracy')
 load_from = "http://118.69.233.170:60001/open/VidConvNext/convnext_vidconv_333_224_kinetics400_T1k/convnext_vidconv_333_224_kinetics400_T1k_epoch_24.pth"
 resume_from = None
