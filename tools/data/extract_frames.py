@@ -109,19 +109,6 @@ def crop_resize_write_vid(frames, view, out_full_path):
             break
     run_success = 0
 
-    # if run_success == 0:
-    #     print(f'{task} {vid_id} {vid_path} done')
-    #     sys.stdout.flush()
-
-    #     lock.acquire()
-    #     with open(report_file, 'a') as f:
-    #         line = full_path + '\n'
-    #         f.write(line)
-    #     lock.release()
-    # else:
-    #     print(f'{task} {vid_id} {vid_path}  got something wrong')
-    #     sys.stdout.flush()
-
     return run_success
 
 def parsing_csv_files():

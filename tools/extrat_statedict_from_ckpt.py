@@ -6,14 +6,9 @@ load_from = '/home/ccvn/Workspace/chuong/AICity2022-Track3/work_dirs/convnext_no
 ckpt= torch.load(load_from)
 state_dict=ckpt['state_dict']
 new_state_dict = {}
-# import pdb; pdb.set_trace()
 for k, v in state_dict.items():
     if k.split('.')[0] in ['backbone','cls_head']:
         new_state_dict[k]=v
-    # if k.split('.')[0]=='backbone':
-    #     new_state_dict[k]=v
-    # elif k.split('.')[0]=='kl_head':
-    #     new_k = k.replace('kl_head', 'cls_head')
-    #     new_state_dict[new_k]=v
+
 out_file = load_from.replace('.pth','_K400.pth')
 torch.save(new_state_dict,out_file)
