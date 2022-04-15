@@ -48,6 +48,7 @@ Train Round 1: Using A1 dataset:
 ```
 ./reproduce_scripts/pretrain_backbone/train_round1.sh
 ```
+Note: Due to Random Drop-out, the Top-1 Accuracy 
 Train Round 2: Using A1 dataset and Pseudo Label on A2 (Pseudo-A2-v1):
 ```
 ./reproduce_scripts/pretrain_backbone/train_round2.sh
