@@ -48,7 +48,7 @@ test_pipeline = [
         type='AdaptSampleFrames',
         clip_len=9,
         frame_interval=15,
-        num_clips=8,
+        num_clips=4,
         test_mode=True),
     dict(type='RawFrameDecode'),
     dict(type='Resize', scale=(image_size, image_size), keep_ratio=False),
