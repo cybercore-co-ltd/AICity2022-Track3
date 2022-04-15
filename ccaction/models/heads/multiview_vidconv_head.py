@@ -1,4 +1,3 @@
-from tokenize import group
 import torch.nn as nn
 from mmcv.cnn.bricks import ConvModule
 from einops import rearrange

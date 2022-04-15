@@ -4,7 +4,7 @@ model = dict(
         type='ConvNextVidBaseTem',
         arch='tiny',
         drop_path_rate=0.25,
-        init_cfg=dict(type='Pretrained', checkpoint="tiny_1k")
+        init_cfg=None,
     ),
     cls_head=dict(
         type='VidConvHead',
