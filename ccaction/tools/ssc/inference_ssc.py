@@ -130,7 +130,6 @@ if __name__ == "__main__":
     json_file = json.load(open(args.proposal, "r"))
 
     # -----loading model
-    import ipdb; ipdb.set_trace()
     model = init_recognizer(args.config, args.checkpoint, device=args.device)
     model.eval()
     os.makedirs(args.outdir, exist_ok=True)
@@ -186,7 +185,6 @@ if __name__ == "__main__":
             ffmpeg_extract_subclip(os.path.join(args.video_dir, user_id, rightside_video),
                                    start_time, end_time,
                                    targetname=rightside_video)
-
             try:
                 pred_result = inference_recognizer_multiview(
                     model, dashboard_video)
@@ -196,18 +194,16 @@ if __name__ == "__main__":
 
             # ----------- for local evaluation
             pred_class_name = [label_name_mapping(tmp[0])
-                                for tmp in pred_result]
+                               for tmp in pred_result]
             pred_result = [list(map(np.float64, tmp))
-                            for tmp in pred_result]
+                           for tmp in pred_result]
             _result['pred'] = pred_result
             _result['class_name'] = pred_class_name
             new_json_file[video_name].append(_result)
 
-        
         with open(os.path.join(args.outdir, bmn_keys + ".json"), "w") as f:
             json.dump(new_json_file, f)
         # remove old video name
         filelist = glob.glob(os.path.join("./", "*.MP4"))
         for f in filelist:
             os.remove(f)
-
