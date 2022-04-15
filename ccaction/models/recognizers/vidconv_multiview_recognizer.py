@@ -2,7 +2,6 @@ from mmaction.models.builder import RECOGNIZERS
 from mmaction.models import Recognizer2D
 from mmcv.runner import auto_fp16
 import torch
-import torch.nn as nn
 from einops import rearrange
 
 
@@ -49,7 +48,7 @@ class VidConvMultiViewRecognizer(Recognizer2D):
         """Defines the computation performed at every call when evaluation,
         testing and gradcam."""
         batches = imgs.shape[0]
-
+        
         num_segs = imgs.shape[1]//self.clip_frames
         # imgs = imgs.reshape((-1, ) + imgs.shape[2:])
         # x = self.extract_feat(imgs)
@@ -153,41 +152,23 @@ class VidConvMultiViewRecognizer(Recognizer2D):
             Tensor: Class score.
         """
         assert self.with_cls_head
-        """Defines the computation performed at every call when evaluation,
-        testing and gradcam."""
-        batches = imgs.shape[0]
-
-        num_segs = imgs.shape[1]//self.clip_frames
+        # batches = imgs.shape[0]
         # imgs = imgs.reshape((-1, ) + imgs.shape[2:])
-        # x = self.extract_feat(imgs)
-        frames = imgs.shape[1] // 3  # with 3 here is 3 views
-        imgs = imgs.reshape((batches, 3, frames) + imgs.shape[2:])
-        imgs = torch.transpose(imgs, 0, 1)
-        x = []
-        for idx in range(len(imgs)):
-            view = imgs[idx]
-            view = view.reshape((-1, ) + view.shape[2:])
-            view = self.extract_feat(view)
-            x.append(view)
-        x = torch.stack(x)
-        x = rearrange(x, 'v (b l) c h w -> b (v l) c h w', b=batches)
-        _, _, channel, height, width = x.shape
-        x = x.view(-1, channel, height, width)
+        # num_segs = imgs.shape[0] // batches
+        num_segs = 1
+        batches = 1
+       # input imgs: NCTHW 1, 3, 9, 192, 192
+        # x = []
+        # # for i in range(imgs.shape[2]):
+        # x.append(self.extract_feat(imgs))
 
-        # x: list of T elements. each element have size NCHW
+        outs = self.extract_feat(imgs)
+        # # x: list of T elements. each element have size NCHW
+        # num_segs = 1
         if self.with_neck:
-            x = self.neck(x)
+            outs = self.neck(outs)
 
-        # When using `TSNHead` or `TPNHead`, shape is [batch_size, num_classes]
-        # When using `TSMHead`, shape is [batch_size * num_crops, num_classes]
-        # `num_crops` is calculated by:
-        #   1) `twice_sample` in `SampleFrames`
-        #   2) `num_sample_positions` in `DenseSampleFrames`
-        #   3) `ThreeCrop/TenCrop/MultiGroupCrop` in `test_pipeline`
-        #   4) `num_clips` in `SampleFrames` or its subclass if `clip_len != 1`
-
-        # should have cls_head if not extracting features
-        outs = self.cls_head(x, num_segs, batches)
-        if 1:
-            outs = nn.functional.softmax(outs)
+        outs = self.cls_head(outs, num_segs)
+        # if 1:
+        #     outs = nn.functional.softmax(outs)
         return outs

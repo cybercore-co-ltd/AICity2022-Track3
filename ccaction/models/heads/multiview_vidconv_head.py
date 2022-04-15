@@ -1,6 +1,5 @@
 import torch.nn as nn
-from mmcv.cnn.bricks import DropPath, ConvModule
-from mmcv.cnn.utils.weight_init import trunc_normal_, trunc_normal_init
+from mmcv.cnn.bricks import ConvModule
 from einops import rearrange
 
 from mmaction.models.builder import HEADS

@@ -50,6 +50,7 @@ class ConvNextVidBaseTem(ConvNeXt):
                  temporal_stack=(3, 3),
                  temporal_dilation=14,
                  add_tem_from_stage = 3,
+                 pretrained=None,
                  *args, **kwargs):
         self.temporal_stack = temporal_stack
         self.clip_frames = temporal_stack[0]*temporal_stack[1]
