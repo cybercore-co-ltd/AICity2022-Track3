@@ -26,7 +26,7 @@ def parse_args():
     parser.add_argument('--src-dir', type=str, help='source video directory', 
                         default='/ssd3/data/ai-city-2022/Track3/raw_video/A1')
     parser.add_argument('--out-dir', type=str, help='output rawframe directory',
-                        default='/ssd3/data/ai-city-2022/Track3/raw_frames/A1')
+                        default='Track3/raw_frames/A1')
     parser.add_argument( '--fps', type=int, default=30, help='fps')
     parser.add_argument(
         '--num-worker',

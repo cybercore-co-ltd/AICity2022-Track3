@@ -6,7 +6,7 @@ export CUDA_VISIBLE_DEVICES=0,1,2,3
 
 
 CFG="configs/aicity/convnext_noforgetting_tsp_333_224_pseudoA2_v1.py"
-WORK_DIR='work_dirs/work_dirs/convnext_noforgetting_tsp_round2'
+WORK_DIR='work_dirs/convnext_noforgetting_tsp_round2'
 mim train mmaction $CFG --work-dir $WORK_DIR --gpus 4 --launcher pytorch --validate 
 
 # When want to resume training, use the following command:
