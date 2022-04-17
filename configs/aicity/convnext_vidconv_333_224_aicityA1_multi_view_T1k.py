@@ -1,6 +1,6 @@
 _base_ = ['../mmaction/_base_/default_runtime.py',
           '../mmaction/_base_/schedules/sgd_50e.py',
-          '../_base_/datasets/aicity_multi_views_9rgb_224_video.py']
+          '../_base_/datasets/aicity_multi_views_9rgb_224_rawframe.py']
 custom_imports = dict(imports=['ccaction'], allow_failed_imports=False)
 model = dict(
     type='VidConvMultiViewRecognizer',
