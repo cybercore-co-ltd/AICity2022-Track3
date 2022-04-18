@@ -1,79 +1,43 @@
-# ccaction
-This project is developed by Cybercore AI for AI City Challenge 2022 Track 3.
-The project is based on the open source [mmaction2](https://github.com/open-mmlab/mmaction2)
-
-# Installation
-## Environment Setup
-a. Create a conda virtual environment and activate it.
-
-```shell
-conda create -n aicity_t3 python=3.7 -y
-conda activate aicity_t3
-```
-
-b. Install PyTorch and torchvision following the [official instructions](https://pytorch.org/), e.g.,
-
-```shell
-conda install pytorch torchvision -c pytorch
-```
-Note: Make sure that your compilation CUDA version and runtime CUDA version match.
-You can check the supported CUDA version for precompiled packages on the [PyTorch website](https://pytorch.org/).
-
-`E.g.1` If you have CUDA 10.2 installed under `/usr/local/cuda` and would like to install PyTorch 1.5,
-you need to install the prebuilt PyTorch with CUDA 10.2.
-
-```shell
-conda install pytorch cudatoolkit=10.2 torchvision -c pytorch
-```
-## Install MMAction2
-Install MMAction2 with [MIM](https://github.com/open-mmlab/mim).
-
-```shell
-pip install openmim
-mim install mmaction2==0.17.0
-```
-MIM can automatically install OpenMMLab projects and their requirements.
-
-## Install CCAction package
-```shell
-python setup.py develop
-```
-
-# Training 
+# QUICK RUN: ACTIONFORMER-PROPOSAL GENERATION
 
 
-## 1. Pretrain backbone with TSP and Learning without Forgetting: 
-
-+ Train Round 1: Using A1 dataset, run:
+## 1. Extract TSP Features Round 1, run:
   
 ```
-./reproduce_scripts/pretrain_backbone/train_round1.sh
+./reproduce_scripts/detector/extract_tsp.sh checkpoints/round1_tsp_62.5.pth tsp_features/round1/
 ```
-**Note:** Due to Random Drop-out and small dataset, the Top-1 Accuracy can be in range (60.1 - 63.5). 
+**Note:** The tsp features are saved at: tsp_features/round1/
 
-+ Train Round 2: Using A1 dataset and Pseudo Label on A2 (Pseudo-A2-v1), run:
+## 2. Train Round 1: Using A1 dataset, run:
+  
 ```
-./reproduce_scripts/pretrain_backbone/train_round2.sh
+./scripts/train_actionformer.sh configs/track3/track3_actionformer_round1.yaml
+```
+
+## 3. Generate Pseudo-A2-v1, run:
+  
+```
+./scripts/gen_pseudo.sh checkpoints/round1_map_27.57.pth.tar
+```
+
+## 4. Extract TSP Features Round 2:
+  
+```
+./reproduce_scripts/detector/extract_tsp.sh checkpoints/round1_tsp_62.5.pth tsp_features/round2/
+```
+
+## 5. Train Round 2: Using A1 dataset and Pseudo Label on A2 (Pseudo-A2-v1), run:
+```
+./scripts/train_actionformer.sh configs/track3/track3_actionformer_round2.yaml
 ```
 **Note:** We use result of Round 2 for the submission.
 
-+ Train Round 3: Using A1 dataset and Pseudo Label on A2 (Pseudo-A2-v2): run:
+## 6. Evaluate on A2 dataset, run:
 ```
-./reproduce_scripts/pretrain_backbone/train_round2.sh
+./scripts/val_actionformer.sh  checkpoints/epoch_050_map_31.55.pth.tar result_round2.json
 ```
-**Note:** Round 3 is overfited to pseudo-label and not used for Public test. 
 
-## 2. Train the Second Stage Classifier:
-
-+ Inference classification from action-former proposal
-```bash
-./reproduce_scripts/second_stage_classifier/inference.sh
+## 7. Generate submission file, run:
 ```
-+ Training
-```bash
-./reproduce_scripts/second_stage_classifier/train.sh
-```
-+ Testing
-```bash
-./reproduce_scripts/second_stage_classifier/test.sh
+./scripts/gen_submit.sh result_round2.json
 ```
