@@ -1,6 +1,6 @@
 # ccaction
 This project is developed by Cybercore AI for AI City Challenge 2022 Track 3.
-The project is based on the open source [mmaction2](https://github.com/open-mmlab/mmaction2)
+The project is based on the open source [mmaction2](https://github.com/open-mmlab/mmaction2) and [action-former](https://github.com/happyharrycn/actionformer_release)
 
 # Installation
 
@@ -29,3 +29,7 @@ After running this script: we have result file: ./actionformer_mulview_ssc.json 
 
 ### Step 3: post-processing and generate submission file on Server. 
 TBD.
+
+
+# Credits:
+We thank [mmaction2](https://github.com/open-mmlab/mmaction2) and [action-former](https://github.com/happyharrycn/actionformer_release) for the code base. Please cite their work if you found this code is helpful.
