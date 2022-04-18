@@ -24,9 +24,9 @@ from tqdm import tqdm
 def parse_args():
     parser = argparse.ArgumentParser(description='extract optical flows')
     parser.add_argument('--src-dir', type=str, help='source video directory', 
-                        default='/ssd3/data/ai-city-2022/Track3/raw_video/A1')
+                        default='data/raw_video/A1')
     parser.add_argument('--out-dir', type=str, help='output rawframe directory',
-                        default='Track3/raw_frames/A1')
+                        default='data/raw_frames/A1')
     parser.add_argument( '--fps', type=int, default=30, help='fps')
     parser.add_argument(
         '--num-worker',
@@ -112,8 +112,11 @@ def crop_resize_write_vid(frames, view, out_full_path):
     return run_success
 
 def parsing_csv_files():
-    csv_files = glob.glob(osp.join(args.src_dir,'annotations', '*.csv'))
-    
+    csv_files = [file 
+                 for path, subdir, files in os.walk(args.src_dir)
+                 for file in glob.glob(os.path.join(path, '*.csv'))
+                 if 'video_ids.csv' not in file]
+    # csv_files = glob.glob(osp.join(args.src_dir,'annotations', '*.csv'))
     user_videos={}
     for csv_file in csv_files:
         df = pd.read_csv(csv_file)
