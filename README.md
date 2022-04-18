@@ -15,8 +15,15 @@ Please follow the steps in [docs/second_stage_classifier.md](docs/second_stage_c
 # Inference on new dataset
 
 ### Step 1. Run the detector to create proposals 
+#### 1.1 Extract tsp features on new dataset
 ```
-./reproduce_scripts/detector/val_actionformer.sh configs/aicity/actionformer/track3_actionformer_round2.yaml http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_map_31.55.pth.tar  result_round2.json
+./reproduce_scripts/detector/extract_tsp.sh http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_tsp_67.5.pth tsp_features/new_dataset/
+```
+**Note:** The tsp features are saved at: *tsp_features/new_dataset/*
+
+#### 1.2 Generate proposals
+```
+./reproduce_scripts/detector/val_actionformer.sh configs/aicity/actionformer/track3_actionformer_new.yaml http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_map_31.55.pth.tar  proposals.json
 ```
 
 ### Step 2. Inference classification from action-former proposal
@@ -25,7 +32,7 @@ Please follow the steps in [docs/second_stage_classifier.md](docs/second_stage_c
 ```
 For example:
 ```
-./reproduce_scripts/second_stage_classifier/inference.sh ./data/raw_video/A2 result_round2.json result_submission.json
+./reproduce_scripts/second_stage_classifier/inference.sh ./data/raw_video/A2 proposals.json result_submission.json
 ```
 After running this script: we have result file: ./actionformer_mulview_ssc.json which is used for post-processing in the next step.
 
