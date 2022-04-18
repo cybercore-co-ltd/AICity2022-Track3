@@ -6,7 +6,7 @@
 ```bash
 ./reproduce_scripts/second_stage_classifier/dataset_prepare_A1.sh 
 ```
-Output: ./data/second_stage_classifier/train_trimmed_rawframes + label file(example: dashboard_train_without_bg_rawframes.csv)
+After running this scripts: raw-frames dataset usded for training is placed at folder: **./data/second_stage_classifier/train_trimmed_rawframes** with label file: **./data/second_stage_classifier/dashboard_train_without_bg_rawframes.csv**
 
 Note: A1 folder which is the same structure video A1 folder of ai-city-track3
 
@@ -14,7 +14,7 @@ Note: A1 folder which is the same structure video A1 folder of ai-city-track3
 ```bash
 ./reproduce_scripts/second_stage_classifier/dataset_prepare_A2.sh
 ```
-Output: ./data/second_stage_classifier/val_trimmed_rawframes + label file(example: dashboard_val_without_bg_rawframes.csv)
+After running this scripts: raw-frames dataset usded for testing is placed at folder: **./data/second_stage_classifier/val_trimmed_rawframes** with label file: **./data/second_stage_classifier/dashboard_val_without_bg_rawframes.csv**
 
 Note: please put each reproduce_scripts/A2_local_labels to relevant user-id folders
 
@@ -22,11 +22,11 @@ Note: please put each reproduce_scripts/A2_local_labels to relevant user-id fold
 ## Quick Run: 
 ### 1. Inference classification from action-former proposal
 ```bash
-./reproduce_scripts/second_stage_classifier/inference.sh TEST_VIDEO_DIR PROPOSAL
+./reproduce_scripts/second_stage_classifier/inference.sh $TEST_VIDEO_DIR $PROPOSAL
 
 Example: ./reproduce_scripts/second_stage_classifier/inference.sh ./data/A2 ./actionformer.json
 ```
-output: ./actionformer_mulview_ssc.json . We will use this file for post-processing.
+After running this script: we have result file: ./actionformer_mulview_ssc.json which is used for post-processing.
 
 ### 2. Training
 ```bash
