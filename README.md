@@ -83,64 +83,28 @@ reproduce_scripts/A2_local_labels
 ```        
 Please copy the corresponding labels file for each user to the folder as in A1 folder:
 ```
-A2
-├── user_id_42271
-│   ├── Dashboard_user_id_42271_NoAudio_3.MP4
-│   ├── Dashboard_user_id_42271_NoAudio_4.MP4
-│   ├── Rear_view_user_id_42271_NoAudio_3.MP4
-│   ├── Rear_view_user_id_42271_NoAudio_4.MP4
-│   ├── Right_side_window_user_id_42271_NoAudio_3.MP4
-│   ├── Right_side_window_user_id_42271_NoAudio_4.MP4
-│   └── user_id_42271.csv
-├── user_id_56306
-│   ├── Dashboard_user_id_56306_NoAudio_2.MP4
-│   ├── Dashboard_user_id_56306_NoAudio_3.MP4
-│   ├── Rear_view_user_id_56306_NoAudio_2.MP4
-│   ├── Rear_view_user_id_56306_NoAudio_3.MP4
-│   ├── Rightside_window_user_id_56306_NoAudio_2.MP4
-│   ├── Rightside_window_user_id_56306_NoAudio_3.MP4
-│   └── user_id_56306.csv
-...
+data/raw_video/A2
+                ├── user_id_42271
+                │   ├── Dashboard_user_id_42271_NoAudio_3.MP4
+                │   ├── Dashboard_user_id_42271_NoAudio_4.MP4
+                │   ├── Rear_view_user_id_42271_NoAudio_3.MP4
+                │   ├── Rear_view_user_id_42271_NoAudio_4.MP4
+                │   ├── Right_side_window_user_id_42271_NoAudio_3.MP4
+                │   ├── Right_side_window_user_id_42271_NoAudio_4.MP4
+                │   └── user_id_42271.csv
+                ├── user_id_56306
+                │   ├── Dashboard_user_id_56306_NoAudio_2.MP4
+                │   ├── Dashboard_user_id_56306_NoAudio_3.MP4
+                │   ├── Rear_view_user_id_56306_NoAudio_2.MP4
+                │   ├── Rear_view_user_id_56306_NoAudio_3.MP4
+                │   ├── Rightside_window_user_id_56306_NoAudio_2.MP4
+                │   ├── Rightside_window_user_id_56306_NoAudio_3.MP4
+                │   └── user_id_56306.csv
+                ...
 ```
 # Training 
 
-
-
+## 1. Pretrain the Backbone to extract feature:
+Please follow the steps in [docs/Pretrain_backbone.md](docs/Pretrain_backbone.md)
 ## 2. Train the Second Stage Classifier:
-
-### 2.1 Prepare Datasets:
-
-+ prepare for A1:
-```bash
-./reproduce_scripts/second_stage_classifier/dataset_prepare_A1.sh A1_video_dir trimmed_video_dir trimmed_rawframe_dir
-
-Example:./reproduce_scripts/second_stage_classifier/dataset_prepare_A1.sh A1 /out/prepair_train_ssc_video /out/prepair_train_ssc_rawframe
-```
-Output: rawframe trimmed-clip folder + csv-label-file (example: dashboard_train_without_bg_rawframes.csv)
-
-Note: A1 folder which is the same structure video A1 folder of ai-city-track3
-
-+ prepare for A2:
-```bash
-./reproduce_scripts/second_stage_classifier/dataset_prepare_A2.sh A2_video_dir trimmed_video_dir trimmed_rawframe_dir
-
-Example:./reproduce_scripts/second_stage_classifier/dataset_prepare_A2.sh A2 /out/prepair_val_ssc_video /out/prepair_val_ssc_rawframe
-```
-Output: rawframe trimmed-clip folder + csv-label-file (example: dashboard_val_without_bg_rawframes.csv)
-
-Note: A2 folder which is the same structure video A1 folder of ai-city-track3 (please put each user-label-csv-file in each user-id-folder as A1 structure)
-### 2.2 Train/Test/Inference commands:
-Please change the path to rawframe_train/rawframe_val folder + relevant csv-label-file prepared at Section 2.1 to configs/_base_/datasets/aicity_multi_views_9rgb_224_rawframe.py
-
-+ Inference classification from action-former proposal
-```bash
-./reproduce_scripts/second_stage_classifier/inference.sh
-```
-+ Training
-```bash
-./reproduce_scripts/second_stage_classifier/train.sh
-```
-+ Testing
-```bash
-./reproduce_scripts/second_stage_classifier/test.sh
-```
+Please follow the steps in [docs/second_stage_classifier.md](docs/second_stage_classifier.md)
