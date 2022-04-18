@@ -3,7 +3,27 @@ This project is developed by Cybercore AI for AI City Challenge 2022 Track 3.
 The project is based on the open source [mmaction2](https://github.com/open-mmlab/mmaction2)
 
 # Installation
-## Environment Setup
+## Environment setup with Dockerfile
+We recommend to use DockerFile for easy reproduction.
++ First, check if you have docker and Nvidia-cuda setup.If not, follow the official website to setup docker:
+  ```
+  sudo docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
+  ```
++ Build Docker file: 
+  ```
+  docker build -t cctrack3 docker/ 
+  ```
++ Run it with:
+  ```
+  docker run --gpus all --shm-size=8g -it -v {DATA_DIR}:/mmdetection/data cctrack3
+  ```
+  where DATA_DIR=<path-to-AI-Download>. We also provide the script to run docker file.
+  ```
+  ./docker/run_docker.sh 
+  ```
+
+
+## Environment Setup with CONDA
 a. Create a conda virtual environment and activate it.
 
 ```shell
