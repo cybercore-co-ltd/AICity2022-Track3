@@ -1,5 +1,4 @@
-export CUDA_VISIBLE_DEVICES=2
+export CUDA_VISIBLE_DEVICES=0
+CONFIG=$1
 python actionformer/train.py \
-configs/track3/track3_actionformer.yaml \
---output round1_pseudo -c 5 -p 1
-#  --load_from /home/ccvn/Workspace/ngocnt/actionformer_release/rename_thumos14.pth.tar
+$CONFIG -c 5 -p 1

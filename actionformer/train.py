@@ -35,6 +35,7 @@ def main(args):
     pprint(cfg)
 
     # prep for output folder (based on time stamp)
+    import ipdb;ipdb.set_trace()
     if not os.path.exists(cfg['output_folder']):
         os.mkdir(cfg['output_folder'])
     cfg_filename = os.path.basename(args.config).replace('.yaml', '')
