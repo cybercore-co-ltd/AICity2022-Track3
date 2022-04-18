@@ -1,5 +1,5 @@
 dataset_type = 'TSP_Multiviews_RawframeDataset'
-data_root = '/ssd3/data/ai-city-2022/Track3/vinh_rawframes_ssc/'
+data_root = './data/second_stage_classifier/'
 
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
@@ -51,17 +51,17 @@ data = dict(
         dataset=dict(
             type=dataset_type,
             ann_file=data_root+'dashboard_train_without_bg_rawframes.csv',
-            data_prefix=data_root+'A1_train_classify',
+            data_prefix=data_root+'train_trimmed_rawframes',
             pipeline=train_pipeline
         )
     ),
     val=dict(
         type=dataset_type,
         ann_file=data_root+'dashboard_val_without_bg_rawframes.csv',
-        data_prefix=data_root+'A2_train_classify',
+        data_prefix=data_root+'val_trimmed_rawframes',
         pipeline=val_pipeline),
     test=dict(
         type=dataset_type,
         ann_file=data_root+'dashboard_val_without_bg_rawframes.csv',
-        data_prefix=data_root+'A2_train_classify',
+        data_prefix=data_root+'val_trimmed_rawframes',
         pipeline=val_pipeline))
