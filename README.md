@@ -15,7 +15,7 @@ Please follow the steps in [docs/second_stage_classifier.md](docs/second_stage_c
 # Inference on new dataset
 
 ### Step 1. Run the detector to create proposals 
-TBD 
+TBD. 
 
 ### Step 2. Inference classification from action-former proposal
 ```bash
@@ -25,4 +25,7 @@ For example:
 ```
 ./reproduce_scripts/second_stage_classifier/inference.sh ./data/raw_video/A2 ./actionformer.json
 ```
-After running this script: we have result file: ./actionformer_mulview_ssc.json which is used for post-processing.
+After running this script: we have result file: ./actionformer_mulview_ssc.json which is used for post-processing in the next step.
+
+### Step 3: post-processing and generate submission file on Server. 
+TBD.
