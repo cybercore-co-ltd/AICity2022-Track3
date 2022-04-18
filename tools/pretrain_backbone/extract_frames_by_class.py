@@ -112,11 +112,11 @@ def crop_resize_write_vid(frames, view, out_full_path):
     return run_success
 
 def parsing_csv_files():
-    csv_files = [file
+    csv_files = [file 
                  for path, subdir, files in os.walk(args.src_dir)
-                 for file in glob.glob(os.path.join(path, '*.csv'))]
+                 for file in glob.glob(os.path.join(path, '*.csv'))
+                 if 'video_ids.csv' not in file]
     # csv_files = glob.glob(osp.join(args.src_dir,'annotations', '*.csv'))
-    
     user_videos={}
     for csv_file in csv_files:
         df = pd.read_csv(csv_file)
