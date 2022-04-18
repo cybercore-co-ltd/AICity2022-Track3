@@ -20,8 +20,6 @@ model = dict(
         dilation=7,
         norm_cfg=dict(type='SyncBN',requires_grad=True),
         dropout_ratio=0.5,
-        # multi_class=True,
-        # label_smooth_eps=0.2,
         num_clip=5),
     test_cfg=dict(average_clips='prob'),
     train_cfg=dict(

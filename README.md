@@ -39,25 +39,47 @@ MIM can automatically install OpenMMLab projects and their requirements.
 python setup.py develop
 ```
 
+## Data Download and extract frame:
+We assume that the dataset is downloaded and placed (or have symbolic-link) in the following structure :
+```
+├── ccaction/
+├── configs/
+├── README.md
+├── reproduce_scripts/
+├── setup.py
+├── tools/
+├── data/ 
+    └──raw_video/ -> <download_folder>/ai-city-2022_track3
+        ├── A1/
+        ├── A2/
+        ├── Distracted_Activity_Class_definition.txt
+        ├── README.txt
+        └── video_ids.csv
+```
+        
 # Training 
-
 
 ## 1. Pretrain backbone with TSP and Learning without Forgetting: 
 
-+ Train Round 1: Using A1 dataset, run:
-  
+### 1.1. Train Round 1: Using A1 dataset, run:
+
+Prepare dataset:
+
+```
+python 
+```
 ```
 ./reproduce_scripts/pretrain_backbone/train_round1.sh
 ```
 **Note:** Due to Random Drop-out and small dataset, the Top-1 Accuracy can be in range (60.1 - 63.5). 
 
-+ Train Round 2: Using A1 dataset and Pseudo Label on A2 (Pseudo-A2-v1), run:
+### 1.2. Train Round 2: Using A1 dataset and Pseudo Label on A2 (Pseudo-A2-v1), run:
 ```
 ./reproduce_scripts/pretrain_backbone/train_round2.sh
 ```
 **Note:** We use result of Round 2 for the submission.
 
-+ Train Round 3: Using A1 dataset and Pseudo Label on A2 (Pseudo-A2-v2): run:
+### 1.3. Train Round 3: Using A1 dataset and Pseudo Label on A2 (Pseudo-A2-v2): run:
 ```
 ./reproduce_scripts/pretrain_backbone/train_round2.sh
 ```
