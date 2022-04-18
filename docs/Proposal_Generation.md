@@ -15,7 +15,9 @@ save as: round1_tsp_62.5_student.pth
 ### 3. Train Round 1: Using A1 dataset, run:
 #### 3.1 Install:
 cd actionformer/utils
+
 python setup.py install --user
+
 cd ../..
 
 #### 3.2 Download annotations:
@@ -36,7 +38,7 @@ Download [round1 annotaions]('http://118.69.233.170:60001/open/AICity/track3/det
 ```
 ./reproduce_scripts/second_stage_classifier/inference.sh data/raw_video/A2 result_round1.json
 ```
-**Note:** The output is saved at: result_round1_vidconv.json
+**Note:** The output is saved at: result_round1_ssc.json
 
 ## ROUND 2
 ### 1. Generate Pseudo-A2-v1, run:
@@ -46,7 +48,9 @@ Download [round1 annotaions]('http://118.69.233.170:60001/open/AICity/track3/det
 ```
 
 **Note:** The pseudo-A2 data are saved at: 
+
 +raw_frames: data/raw_frames/combine_A1A2Pseudo_vidconv_round1_bg/
+
 +label: data/raw_frames/combine_A1A2Pseudo_vidconv_round1_bg.txt
 
 ### 3. Train TSP
