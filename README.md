@@ -15,7 +15,9 @@ Please follow the steps in [docs/second_stage_classifier.md](docs/second_stage_c
 # Inference on new dataset
 
 ### Step 1. Run the detector to create proposals 
-TBD. 
+```
+./reproduce_scripts/detector/val_actionformer.sh configs/aicity/actionformer/track3_actionformer_round2.yaml http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_map_31.55.pth.tar  result_round2.json
+```
 
 ### Step 2. Inference classification from action-former proposal
 ```bash
@@ -23,7 +25,7 @@ TBD.
 ```
 For example:
 ```
-./reproduce_scripts/second_stage_classifier/inference.sh ./data/raw_video/A2 ./actionformer.json
+./reproduce_scripts/second_stage_classifier/inference.sh ./data/raw_video/A2 result_round2.json
 ```
 After running this script: we have result file: ./actionformer_mulview_ssc.json which is used for post-processing in the next step.
 
