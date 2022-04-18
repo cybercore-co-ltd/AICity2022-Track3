@@ -4,6 +4,7 @@ import json
 import torch
 import glob
 import numpy as np
+import ccaction
 from mmaction.apis import init_recognizer
 
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
@@ -17,7 +18,7 @@ from tqdm import tqdm
 TEST_PIPELINE=[
     dict(type='CcDecordInit'),
     dict(
-        type='SampleFrames',
+        type='AdaptSampleFrames',
         clip_len=9,
         frame_interval=15,
         num_clips=5,
@@ -35,19 +36,30 @@ TEST_PIPELINE=[
     dict(type='ToTensor', keys=['imgs'])
 ]
 
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--config',
+        '--config-t1k',
         type=str,
         default='configs/aicity/convnext_vidconv_333_224_aicityA1_multi_view_T1k.py',
         help='Config file for detection')
     parser.add_argument(
-        '--checkpoint',
+        '--checkpoint-t1k',
         type=str,
-        default='http://118.69.233.170:60001/open/AICity/track3/vidconv_classifier/best_multiview_ckpt_e12.pth',
+        default='http://118.69.233.170:60001/open/AICity/track3/ssc/best_multiview_ckpt_e12.pth',
         help='Checkpoint file for detection')
+
+    parser.add_argument(
+        '--config-s1k',
+        type=str,
+        default='configs/aicity/convnext_vidconv_333_224_aicityA1_multi_view_S1k.py',
+        help='Config file for detection')
+    parser.add_argument(
+        '--checkpoint-s1k',
+        type=str,
+        default='http://118.69.233.170:60001/open/AICity/track3/ssc/convnext_s1k_e12_78.57.pth',
+        help='Checkpoint file for detection')
+
     parser.add_argument(
         '--proposal-thr',
         type=float,
@@ -104,39 +116,34 @@ def label_name_mapping(label_id):
     return mapping[label_id]
 
 
-def inference_recognizer_multiview(model, video, outputs=None, as_tensor=True):
+def inference_recognizer_multiview(model_t1k, model_s1k, video, test_pipeline=None,outputs=None, as_tensor=True):
 
     #convert rawframe flow to video flow
-    model.cfg.dataset_type = 'VideoDataset'
-    model.cfg.data.test.pipeline = TEST_PIPELINE
-
-    cfg = model.cfg
-
-    device = next(model.parameters()).device
-    test_pipeline = cfg.data.test.pipeline
+    model_t1k.cfg.dataset_type = 'VideoDataset'
+    model_s1k.cfg.dataset_type = 'VideoDataset'
+    
+    device = next(model_t1k.parameters()).device
     data = dict(filename=video, label=-1, start_index=0, modality='RGB')
 
-    test_pipeline = Compose(test_pipeline)
     data = test_pipeline(data)
     data = collate([data], samples_per_gpu=1)
 
-    if next(model.parameters()).is_cuda:
+    if next(model_t1k.parameters()).is_cuda:
         # scatter to specified GPU
         data = scatter(data, [device])[0]
 
     # forward the model
-    with OutputHook(model, outputs=outputs, as_tensor=as_tensor) as h:
-        with torch.no_grad():
-            scores = model(return_loss=False, **data)[0]
-        returned_features = h.layer_outputs if outputs else None
-
+    with torch.no_grad():
+        score_t1k = model_t1k(return_loss=False, **data)[0]
+        score_s1k = model_s1k(return_loss=False, **data)[0]
+    score_s1k=score_s1k*0.7
+    scores = np.mean(np.array([score_t1k,score_s1k]),axis=0)
     num_classes = scores.shape[-1]
     score_tuples = tuple(zip(range(num_classes), scores))
     score_sorted = sorted(score_tuples, key=itemgetter(1), reverse=True)
 
     top5_label = score_sorted[:5]
-    if outputs:
-        return top5_label, returned_features
+    
     return top5_label
 
 
@@ -156,9 +163,14 @@ if __name__ == "__main__":
     args = parse_args()
     json_file = json.load(open(args.proposal, "r"))
 
+    # building test-pipeline
+    test_pipeline = Compose(TEST_PIPELINE)
+
     # -----loading model
-    model = init_recognizer(args.config, args.checkpoint, device=args.device)
-    model.eval()
+    model_t1k = init_recognizer(args.config_t1k, args.checkpoint_t1k, device=args.device)
+    model_s1k = init_recognizer(args.config_s1k, args.checkpoint_s1k, device=args.device)
+    model_t1k.eval()
+    model_s1k.eval()
     os.makedirs(args.outdir, exist_ok=True)
 
     # ------------------------
@@ -214,10 +226,11 @@ if __name__ == "__main__":
                                    targetname=rightside_video)
             try:
                 pred_result = inference_recognizer_multiview(
-                    model, dashboard_video)
+                    model_t1k, model_s1k,dashboard_video, test_pipeline=test_pipeline)
+
             except:
                 print("--------- Error Here------------")
-                continue
+                raise ValueError("Maybe irrelevant path to video testing")
 
             # ----------- for local evaluation
             pred_class_name = [label_name_mapping(tmp[0])
@@ -230,7 +243,12 @@ if __name__ == "__main__":
 
         with open(os.path.join(args.outdir, bmn_keys + ".json"), "w") as f:
             json.dump(new_json_file, f)
+        
         # remove old video name
         filelist = glob.glob(os.path.join("./", "*.MP4"))
         for f in filelist:
             os.remove(f)
+
+        filelist = glob.glob(os.path.join("./", "*.mp4"))
+        for f in filelist:
+            os.remove(f)    

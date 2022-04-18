@@ -18,11 +18,12 @@ model = dict(
         expand_ratio=0.25,
         kernel_size=3,
         dilation=7,
-        norm_cfg=dict(type='SyncBN', requires_grad=True),
+        norm_cfg=dict(type='SyncBN',requires_grad=True),
         dropout_ratio=0.5,
         num_clip=5),
     test_cfg=dict(average_clips='prob'),
-    train_cfg=None,
+    train_cfg=dict(
+        blending=dict(type='MixupBlending', num_classes=17, alpha=.2)),
 )
 
 #----------- AdamW
@@ -49,8 +50,8 @@ total_epochs = 18
 # find_unused_parameters = True
 fp16 = dict(loss_scale=512.0)
 # runtime settings
-checkpoint_config = dict(interval=3)
+checkpoint_config = dict(interval=2)
 log_config = dict(interval=5, hooks=[dict(type='TextLoggerHook')])
-evaluation = dict(interval=3, metrics='top_k_accuracy')
+evaluation = dict(interval=2, metrics='top_k_accuracy')
 load_from = "http://118.69.233.170:60001/open/VidConvNext/convnext_vidconv_333_224_kinetics400_S1k/convnext_vidconv_333_224_kinetics400_S1k_epoch_22.pth"
 resume_from = None
