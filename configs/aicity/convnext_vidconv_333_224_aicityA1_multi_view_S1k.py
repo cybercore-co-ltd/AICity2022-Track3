@@ -23,7 +23,7 @@ model = dict(
         num_clip=5),
     test_cfg=dict(average_clips='prob'),
     train_cfg=dict(
-        blending=dict(type='MixupBlending', num_classes=174, alpha=.2)),
+        blending=dict(type='MixupBlending', num_classes=17, alpha=.2)),
 )
 
 #----------- AdamW
