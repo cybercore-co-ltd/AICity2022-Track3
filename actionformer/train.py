@@ -35,19 +35,18 @@ def main(args):
     pprint(cfg)
 
     # prep for output folder (based on time stamp)
-    import ipdb;ipdb.set_trace()
     if not os.path.exists(cfg['output_folder']):
-        os.mkdir(cfg['output_folder'])
+        os.makedirs(cfg['output_folder'])
     cfg_filename = os.path.basename(args.config).replace('.yaml', '')
     if len(args.output) == 0:
         ts = datetime.datetime.fromtimestamp(int(time.time()))
         ckpt_folder = os.path.join(
-            cfg['output_folder'], cfg_filename + '_' + str(ts))
+            cfg['output_folder'], cfg_filename)
     else:
         ckpt_folder = os.path.join(
-            cfg['output_folder'], cfg_filename + '_' + str(args.output))
+            cfg['output_folder'], cfg_filename)
     if not os.path.exists(ckpt_folder):
-        os.mkdir(ckpt_folder)
+        os.makedirs(ckpt_folder)
     # tensorboard writer
     tb_writer = SummaryWriter(os.path.join(ckpt_folder, 'logs'))
 
@@ -167,7 +166,7 @@ def main(args):
         ):
             save_states = {'state_dict_ema':model_ema.module.state_dict()}
             #add eval    
-            _train_state = model.module.state_dict()
+            _train_state = model.state_dict()
             model.load_state_dict(model_ema.module.state_dict())
             mAP = valid_one_epoch(
                                 val_loader,

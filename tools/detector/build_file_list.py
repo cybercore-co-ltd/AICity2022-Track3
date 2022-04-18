@@ -11,10 +11,10 @@ from mmcv.runner import set_random_seed
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Build file list')
-    parser.add_argument('--src_dir', type=str, help='source video directory', 
-                        default='/ssd3/data/ai-city-2022/Track3/raw_frames/combine_A1A2Pseudo_vidconv_round2_bg')
-    parser.add_argument('--out_file', type=str, help='output rawframe directory',
-                        default='/ssd3/data/ai-city-2022/Track3/raw_frames/combine_A1A2Pseudo_vidconv_round2_bg.txt')
+    parser.add_argument('src_dir', type=str, help='source video directory', 
+                        default='/ssd3/data/ai-city-2022/Track3/raw_frames/combine_A1A2Pseudo_vidconv_round1_bg')
+    parser.add_argument('out_file', type=str, help='output rawframe directory',
+                        default='/ssd3/data/ai-city-2022/Track3/raw_frames/combine_A1A2Pseudo_vidconv_round1_bg.txt')
     parser.add_argument(
         '--shuffle',
         action='store_true',
