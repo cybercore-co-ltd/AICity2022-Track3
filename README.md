@@ -77,7 +77,7 @@ We assume that the dataset is downloaded and placed (or have symbolic-link) in t
         └── video_ids.csv
 ```
 
-[Optional] For reproducing purpose and easy evaluation, we also provide our Manual Labels for the A2 set in:
+[Optional] For reproducing purpose and quick evaluation, we also provide our Manual Labels for the A2 set in:
 ```
 reproduce_scripts/A2_local_labels
 ```        
