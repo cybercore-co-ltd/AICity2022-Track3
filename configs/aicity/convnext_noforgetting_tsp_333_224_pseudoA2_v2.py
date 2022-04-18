@@ -1,5 +1,5 @@
 _base_ = 'convnext_noforgetting_tsp_333_224_A1.py'
-data_root = '/ssd3/data/ai-city-2022/Track3/raw_frames/'
+data_root = 'data/raw_frames/'
 custom_imports = dict(imports=['ccaction'], allow_failed_imports=False)
 
 

@@ -24,9 +24,9 @@ from tqdm import tqdm
 def parse_args():
     parser = argparse.ArgumentParser(description='extract optical flows')
     parser.add_argument('--src-dir', type=str, help='source video directory', 
-                        default='/ssd3/data/ai-city-2022/Track3/raw_video/A1')
+                        default='data/raw_video/A1')
     parser.add_argument('--out-dir', type=str, help='output rawframe directory',
-                        default='Track3/raw_frames/A1')
+                        default='data/raw_frames/A1')
     parser.add_argument( '--fps', type=int, default=30, help='fps')
     parser.add_argument(
         '--num-worker',
