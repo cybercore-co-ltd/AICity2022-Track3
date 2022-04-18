@@ -46,18 +46,18 @@ def parse_args():
     parser.add_argument(
         '--checkpoint-t1k',
         type=str,
-        default='http://118.69.233.170:60001/open/AICity/track3/vidconv_classifier/best_multiview_ckpt_e12.pth',
+        default='http://118.69.233.170:60001/open/AICity/track3/ssc/best_multiview_ckpt_e12.pth',
         help='Checkpoint file for detection')
 
     parser.add_argument(
         '--config-s1k',
         type=str,
-        default='configs/aicity/convnext_vidconv_333_224_aicityA1_multi_view_T1k.py',
+        default='configs/aicity/convnext_vidconv_333_224_aicityA1_multi_view_S1k.py',
         help='Config file for detection')
     parser.add_argument(
         '--checkpoint-s1k',
         type=str,
-        default='http://118.69.233.170:60001/open/AICity/track3/vidconv_classifier/best_multiview_ckpt_e12.pth',
+        default='http://118.69.233.170:60001/open/AICity/track3/ssc/convnext_s1k_e12_78.57.pth',
         help='Checkpoint file for detection')
 
     parser.add_argument(
