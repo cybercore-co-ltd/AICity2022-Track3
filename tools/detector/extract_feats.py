@@ -23,7 +23,7 @@ def parse_args():
     parser.add_argument('--ckpt', type=str, help='ckpt',
                         default='checkpoints/round1_tsp_62.5.pth')
     parser.add_argument('--in_dir', type=str, help='folder data',
-                        default='/ssd3/data/ai-city-2022/Track3/raw_frames/full_video/A1/')
+                        default='data/raw_frames/A1/')
     parser.add_argument('--out_dir', type=str, help='out pickle file',
                         default='A1')
 
