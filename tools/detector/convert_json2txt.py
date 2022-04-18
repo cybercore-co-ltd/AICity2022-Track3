@@ -23,10 +23,10 @@ if __name__ == "__main__":
     submit_file = open("submit.txt", "a")
     submit_list = []
 
-    video_id_mapping = video_id_process("tools/video_ids.csv")
+    video_id_mapping = video_id_process("tools/detector/video_ids.csv")
     json_file = json.load(
         open("submit.json", "r"))
-
+    set_lines = []
     for video_name, result in json_file['results'].items():
         video_id = video_id_mapping[video_name+".MP4"]
 
@@ -39,7 +39,8 @@ if __name__ == "__main__":
             class_id = str(int(_result['label']) + 1)
             line = video_id+" "+class_id+" " + \
                 str(start_time)+" "+str(end_time)+"\n"
-
+            if line in set_lines: continue
+            set_lines.append(line)
             submit_file.write(line)
 
     submit_file.close()

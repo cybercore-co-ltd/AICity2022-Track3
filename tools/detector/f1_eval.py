@@ -35,14 +35,14 @@ def parse_args():
     return args
 
 def get_f1_eval(args):
-    cfg = Config.fromfile('configs/track3/bmn_i3d_track3.py')
+    cfg = Config.fromfile('configs/aicity/actionformer/distracted_driving.py')
     eval_config = {}
     dataset = build_dataset(cfg.data.test, dict(test_mode=True))
     path = args.json_output_path
     print(path)
     outputs = mmcv.load(path)
     eval_ouputs = []
-    if 'vidconv.json' in path:
+    if 'ssc' in path:
         for video_name, proposal_list in outputs['results'].items():
             convert_proposal_list = []
             for _proposal in proposal_list:
@@ -72,7 +72,12 @@ def get_f1_eval(args):
             eval_ouputs.append({'video_name': video_name, 'proposal_list': proposal_list})
             outputs['results'][video_name]=proposal_list
         mmcv.dump(outputs, 'submit.json')
-
+    try:
+        eval_res = dataset.evaluate(eval_ouputs, **eval_config)
+        for name, val in eval_res.items():
+            print(f'{name}: {val:.04f}')
+    except:
+        print("Only submission")
 if __name__ == '__main__':
     args = parse_args()
     get_f1_eval(args)

@@ -2,7 +2,7 @@ dataset_name: thumos
 train_split: ['training']
 val_split: ['validation']
 dataset: {
-  json_file: annotaions/a1a2_anns.json,
+  json_file: annotations/a1a2_anns.json,
   feat_folder: tsp_features/round1/,
   file_prefix: ~,
   file_ext: .pkl,

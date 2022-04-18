@@ -1,4 +1,5 @@
-rm /home/ccvn/Workspace/ngocnt/AICity2022-Track3/submit.json
-rm /home/ccvn/Workspace/ngocnt/AICity2022-Track3/submit.txt
-python tools/f1_eval.py
-python tools/convert_json2txt.py
+PREDICTION=$1
+rm submit.json
+rm submit.txt
+python tools/detector/f1_eval.py $PREDICTION
+python tools/detector/convert_json2txt.py 'submit.json'

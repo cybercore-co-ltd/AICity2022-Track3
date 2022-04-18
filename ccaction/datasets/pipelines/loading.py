@@ -5,6 +5,10 @@ from mmaction.datasets.builder import PIPELINES
 from mmaction.datasets.pipelines import SampleFrames, RawFrameDecode, DecordInit, DecordDecode
 from mmaction.datasets.pipelines import SampleAVAFrames
 import os
+from mmaction.datasets.pipelines import LoadLocalizationFeature
+import mmcv
+# from .temporal_augmentations import TemporalShift_random
+import torch.nn.functional as F
 
 
 @PIPELINES.register_module()
@@ -265,4 +269,48 @@ class CcDecordDecode(DecordDecode):
         results["view_name"] = [results['filename'],
                                 results_rearview['filename'], results_rightside['filename']]
         del results_rearview, results_rightside
+        return results
+
+@PIPELINES.register_module()
+class CCLoadLocalizationFeature(LoadLocalizationFeature):
+    """Load Video features for localizer with given video_name list.
+
+    Required keys are "video_name" and "data_prefix", added or modified keys
+    are "raw_feature".
+
+    Args:
+        raw_feature_ext (str): Raw feature file extension.  Default: '.csv'.
+    """
+
+    def __init__(self, raw_feature_ext='.pkl', with_TFS=False, dropout=0.0):
+        valid_raw_feature_ext = ('.pkl', '.hdf')
+        if raw_feature_ext not in valid_raw_feature_ext:
+            raise NotImplementedError
+        self.raw_feature_ext = raw_feature_ext
+        self.with_TFS = with_TFS
+        self.dropout = dropout
+        self.TemporalShift_random = None
+
+    def __call__(self, results):
+        """Perform the LoadLocalizationFeature loading.
+
+        Args:
+            results (dict): The resulting dict to be modified and passed
+                to the next transform in pipeline.
+        """
+        video_name = results['video_name'].split('.')[0]
+        data_prefix = results['data_prefix']
+        data_path = osp.join(data_prefix, video_name + self.raw_feature_ext)
+
+        # raw_feature = np.loadtxt(
+        #     data_path, dtype=np.float32, delimiter=',', skiprows=1)
+        raw_feature = mmcv.load(data_path)
+        results['raw_feature'] = np.transpose(raw_feature, (1, 0)).astype(np.float32) 
+        if self.with_TFS:
+            input_data = self.TemporalShift_random(torch.Tensor(np.expand_dims(results['raw_feature'],0)))
+            input_data = F.dropout2d(input_data, self.dropout)
+            tfs_features= input_data.squeeze(0)
+            results['raw_feature'] = tfs_features.cpu().detach().numpy()
+        #IMPORTANCE
+        # results['feature_frame'] = (results['duration_frame']//6)*6
         return results
