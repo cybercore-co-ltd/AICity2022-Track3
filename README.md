@@ -76,7 +76,32 @@ We assume that the dataset is downloaded and placed (or have symbolic-link) in t
         ├── README.txt
         └── video_ids.csv
 ```
-        
+
+[Optional] For reproducing purpose and easy evaluation, we also provide our Manual Labels for the A2 set in:
+```
+reproduce_scripts/A2_local_labels
+```        
+Please copy the corresponding labels file for each user to the folder as in A1 folder:
+```
+A2
+├── user_id_42271
+│   ├── Dashboard_user_id_42271_NoAudio_3.MP4
+│   ├── Dashboard_user_id_42271_NoAudio_4.MP4
+│   ├── Rear_view_user_id_42271_NoAudio_3.MP4
+│   ├── Rear_view_user_id_42271_NoAudio_4.MP4
+│   ├── Right_side_window_user_id_42271_NoAudio_3.MP4
+│   ├── Right_side_window_user_id_42271_NoAudio_4.MP4
+│   └── user_id_42271.csv
+├── user_id_56306
+│   ├── Dashboard_user_id_56306_NoAudio_2.MP4
+│   ├── Dashboard_user_id_56306_NoAudio_3.MP4
+│   ├── Rear_view_user_id_56306_NoAudio_2.MP4
+│   ├── Rear_view_user_id_56306_NoAudio_3.MP4
+│   ├── Rightside_window_user_id_56306_NoAudio_2.MP4
+│   ├── Rightside_window_user_id_56306_NoAudio_3.MP4
+│   └── user_id_56306.csv
+...
+```
 # Training 
 
 
