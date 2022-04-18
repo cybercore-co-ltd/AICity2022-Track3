@@ -1,6 +1,6 @@
 # Environment Setup 
 
-We can use either Docker or Conda for building envi
+We can use either Docker or Conda for building environment.
 ## Environment setup with Dockerfile
 We recommend to use DockerFile for easy reproduction.
 1. First, check if you have docker and Nvidia-cuda setup.If not, follow the official website to setup docker:
@@ -13,7 +13,7 @@ We recommend to use DockerFile for easy reproduction.
   ```
 3. Run it with:
   ```
-  docker run --gpus all --shm-size=8g -it -v {DATA_DIR}:/mmdetection/data cctrack3
+  docker run --gpus all --shm-size=200g -it -v {DATA_DIR}:/mmdetection/data cctrack3
   ```
   where `DATA_DIR=<path-to-AI-CITY-2022-Track3-Downloaded folder>`. We also provide the script to run docker file.
   ```
@@ -55,4 +55,48 @@ MIM can automatically install OpenMMLab projects and their requirements.
 4. Install CCAction package
 ```shell
 python setup.py develop
+```
+
+## Data Download and extract frame:
+We assume that the dataset is downloaded and placed (or have symbolic-link) in the following structure :
+```
+├── ccaction/
+├── configs/
+├── README.md
+├── reproduce_scripts/
+├── setup.py
+├── tools/
+├── data/ 
+    └──raw_video/ -> <download_folder>/ai-city-2022_track3
+        ├── A1/
+        ├── A2/
+        ├── Distracted_Activity_Class_definition.txt
+        ├── README.txt
+        └── video_ids.csv
+```
+
+[Optional] For reproducing purpose and quick evaluation, we also provide our Manual Labels for the A2 set in:
+```
+reproduce_scripts/A2_local_labels
+```        
+Please copy the corresponding labels file for each user to the folder A2 similar to A1 folder:
+```
+data/raw_video/A2
+                ├── user_id_42271
+                │   ├── Dashboard_user_id_42271_NoAudio_3.MP4
+                │   ├── Dashboard_user_id_42271_NoAudio_4.MP4
+                │   ├── Rear_view_user_id_42271_NoAudio_3.MP4
+                │   ├── Rear_view_user_id_42271_NoAudio_4.MP4
+                │   ├── Right_side_window_user_id_42271_NoAudio_3.MP4
+                │   ├── Right_side_window_user_id_42271_NoAudio_4.MP4
+                │   └── user_id_42271.csv
+                ├── user_id_56306
+                │   ├── Dashboard_user_id_56306_NoAudio_2.MP4
+                │   ├── Dashboard_user_id_56306_NoAudio_3.MP4
+                │   ├── Rear_view_user_id_56306_NoAudio_2.MP4
+                │   ├── Rear_view_user_id_56306_NoAudio_3.MP4
+                │   ├── Rightside_window_user_id_56306_NoAudio_2.MP4
+                │   ├── Rightside_window_user_id_56306_NoAudio_3.MP4
+                │   └── user_id_56306.csv
+                ...
 ```
