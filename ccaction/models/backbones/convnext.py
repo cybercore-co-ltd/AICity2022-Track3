@@ -163,7 +163,7 @@ class ConvNeXt(BaseModule):
             self.stages.append(stage)
             cur += depths[i]
 
-        self.norm = nn.LayerNorm(dims[-1], eps=1e-6) # final norm layer
+        # self.norm = nn.LayerNorm(dims[-1], eps=1e-6) # final norm layer
 
     def init_weights(self):
         logger = get_root_logger()

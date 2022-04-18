@@ -1,5 +1,9 @@
 from mmaction.models.heads import *
-from .context_aware_cls_head import ContextAwareClsHead
-from .brave_head import BraveHead
-from .att_pooling_head import AttnPoolingHead
-from .vidconv_head import VidConvHead
+from .vidconv_head import VidConvHead 
+from .tsp_head import TSPHead
+from .multiview_vidconv_head import MultiviewVidConvHead
+from .multiview_vidconv_head_S1K import MultiviewVidConvHead_S1K
+
+
+
+
