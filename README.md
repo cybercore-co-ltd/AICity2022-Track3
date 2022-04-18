@@ -3,7 +3,27 @@ This project is developed by Cybercore AI for AI City Challenge 2022 Track 3.
 The project is based on the open source [mmaction2](https://github.com/open-mmlab/mmaction2)
 
 # Installation
-## Environment Setup
+## Environment setup with Dockerfile
+We recommend to use DockerFile for easy reproduction.
++ First, check if you have docker and Nvidia-cuda setup.If not, follow the official website to setup docker:
+  ```
+  sudo docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
+  ```
++ Build Docker file: 
+  ```
+  docker build -t cctrack3 docker/ 
+  ```
++ Run it with:
+  ```
+  docker run --gpus all --shm-size=8g -it -v {DATA_DIR}:/mmdetection/data cctrack3
+  ```
+  where DATA_DIR=<path-to-AI-Download>. We also provide the script to run docker file.
+  ```
+  ./docker/run_docker.sh 
+  ```
+
+
+## Environment Setup with CONDA
 a. Create a conda virtual environment and activate it.
 
 ```shell
@@ -59,31 +79,7 @@ We assume that the dataset is downloaded and placed (or have symbolic-link) in t
         
 # Training 
 
-## 1. Pretrain backbone with TSP and Learning without Forgetting: 
 
-### 1.1. Train Round 1: Using A1 dataset, run:
-
-Prepare dataset:
-
-```
-python 
-```
-```
-./reproduce_scripts/pretrain_backbone/train_round1.sh
-```
-**Note:** Due to Random Drop-out and small dataset, the Top-1 Accuracy can be in range (60.1 - 63.5). 
-
-### 1.2. Train Round 2: Using A1 dataset and Pseudo Label on A2 (Pseudo-A2-v1), run:
-```
-./reproduce_scripts/pretrain_backbone/train_round2.sh
-```
-**Note:** We use result of Round 2 for the submission.
-
-### 1.3. Train Round 3: Using A1 dataset and Pseudo Label on A2 (Pseudo-A2-v2): run:
-```
-./reproduce_scripts/pretrain_backbone/train_round2.sh
-```
-**Note:** Round 3 is overfited to pseudo-label and not used for Public test. 
 
 ## 2. Train the Second Stage Classifier:
 
