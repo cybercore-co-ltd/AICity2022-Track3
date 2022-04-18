@@ -144,4 +144,4 @@ command/
 *.pth
 *.txt 
 *.npy
-Track3
+data/
