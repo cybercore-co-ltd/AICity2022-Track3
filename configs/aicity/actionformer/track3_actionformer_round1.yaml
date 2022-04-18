@@ -1,0 +1,60 @@
+dataset_name: thumos
+train_split: ['training']
+val_split: ['validation']
+dataset: {
+  json_file: annotations/a1a2_anns.json,
+  feat_folder: /home/ccvn/Workspace/ngocnt/su/AICity2022-Track3/round1_r3_e9/,
+  file_prefix: ~,
+  file_ext: .pkl,
+  default_fps: 30,
+  num_classes: 17,
+  input_dim: 768,
+  feat_stride: 8,
+  num_frames: 9,
+  # serve as data augmentation
+  trunc_thresh: 0.5,
+  crop_ratio: [0.9, 1.0],
+  max_seq_len: 2304,
+}
+model: {
+  fpn_type: identity,
+  max_buffer_len_factor: 6.0,
+  n_mha_win_size: 19,
+}
+opt: {
+  learning_rate: 0.001,
+  epochs: 50,
+  weight_decay: 0.05,
+}
+loader: {
+  batch_size: 1,
+  num_workers: 1,
+}
+
+#Set train_cfg as anet
+train_cfg: {
+  init_loss_norm: 400,
+  clip_grad_l2norm: 1.0,
+  cls_prior_prob: 0.01,
+  center_sample: radius,
+  center_sample_radius: 1.5,
+  label_smoothing: 0.1,
+  loss_weight: -1,
+  dropout: 0.1,
+  droppath: 0.1,
+}
+
+test_cfg: {duration_thresh: 0.1,
+          # ext_score_file: 'pred_score.pkl',
+          iou_threshold: 0.1,
+          max_seg_num: 2304,
+          min_score: 0.001,
+          multiclass_nms: True,
+          nms_method: 'soft',
+          nms_sigma: 0.8,
+          pre_nms_thresh: 0.01,
+          pre_nms_topk: 2000,
+          voting_thresh: 0.85}
+
+
+output_folder: ./ckpt/

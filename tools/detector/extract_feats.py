@@ -19,9 +19,9 @@ import torch
 def parse_args():
     parser = argparse.ArgumentParser(description='extract optical flows')
     parser.add_argument('--config', type=str, help='config',
-                        default='/home/ccvn/Workspace/vinh/AICity2022-Track3/convnext_noforgetting_tsp_333_224_k400.py')
+                        default='configs/aicity/convnext_noforgetting_tsp_333_224_pseudoA2_v1.py')
     parser.add_argument('--ckpt', type=str, help='ckpt',
-                        default='/home/ccvn/Workspace/chuong/AICity2022-Track3/work_dirs/convnext_noforgetting_tsp_round2/epoch_6.pth')
+                        default='checkpoints/round1_tsp_62.5.pth')
     parser.add_argument('--in_dir', type=str, help='folder data',
                         default='/ssd3/data/ai-city-2022/Track3/raw_frames/full_video/A1/')
     parser.add_argument('--out_dir', type=str, help='out pickle file',
