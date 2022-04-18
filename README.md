@@ -17,7 +17,7 @@ We recommend to use DockerFile for easy reproduction.
   ```
   docker run --gpus all --shm-size=8g -it -v {DATA_DIR}:/mmdetection/data cctrack3
   ```
-  where DATA_DIR=<path-to-AI-Download>. We also provide the script to run docker file.
+  where `DATA_DIR=<path-to-AI-Download>`. We also provide the script to run docker file.
   ```
   ./docker/run_docker.sh 
   ```
