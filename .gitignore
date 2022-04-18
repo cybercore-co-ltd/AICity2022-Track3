@@ -145,3 +145,6 @@ command/
 *.txt 
 *.npy
 data/
+*.json
+*.tar
+*.pkl

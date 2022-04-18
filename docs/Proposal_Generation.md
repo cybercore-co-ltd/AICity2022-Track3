@@ -11,7 +11,7 @@
 ## 2. Train Round 1: Using A1 dataset, run:
   
 ```
-./scripts/train_actionformer.sh configs/track3/track3_actionformer_round1.yaml
+./reproduce_scripts/detector/train_actionformer.sh configs/aicity/actionformer/track3_actionformer_round1.yaml
 ```
 
 ## 3. Generate Pseudo-A2-v1, run:
