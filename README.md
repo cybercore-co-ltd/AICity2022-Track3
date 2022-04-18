@@ -25,12 +25,14 @@ Please follow the steps in [docs/second_stage_classifier.md](docs/second_stage_c
 ```
 For example:
 ```
-./reproduce_scripts/second_stage_classifier/inference.sh ./data/raw_video/A2 result_round2.json
+./reproduce_scripts/second_stage_classifier/inference.sh ./data/raw_video/A2 result_round2.json result_submission.json
 ```
 After running this script: we have result file: ./actionformer_mulview_ssc.json which is used for post-processing in the next step.
 
 ### Step 3: post-processing and generate submission file on Server. 
-TBD.
+```
+./reproduce_scripts/gen_submit.sh result_submission.json
+```
 
 
 # Credits:
