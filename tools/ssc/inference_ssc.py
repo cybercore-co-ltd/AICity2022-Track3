@@ -14,6 +14,27 @@ from operator import itemgetter
 
 from tqdm import tqdm
 
+TEST_PIPELINE=[
+    dict(type='CcDecordInit'),
+    dict(
+        type='SampleFrames',
+        clip_len=9,
+        frame_interval=15,
+        num_clips=5,
+        test_mode=True),
+    dict(type='CcDecordDecode', crop_drive=True),
+    dict(type='Resize', scale=(-1, 256)),
+    dict(type='CenterCrop', crop_size=224),
+    dict(
+        type='Normalize',
+        mean=[123.675, 116.28, 103.53],
+        std=[58.395, 57.12, 57.375],
+        to_bgr=False),
+    dict(type='FormatShape', input_format='NCHW'),
+    dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
+    dict(type='ToTensor', keys=['imgs'])
+]
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -84,7 +105,13 @@ def label_name_mapping(label_id):
 
 
 def inference_recognizer_multiview(model, video, outputs=None, as_tensor=True):
+
+    #convert rawframe flow to video flow
+    model.cfg.dataset_type = 'VideoDataset'
+    model.cfg.data.test.pipeline = TEST_PIPELINE
+
     cfg = model.cfg
+
     device = next(model.parameters()).device
     test_pipeline = cfg.data.test.pipeline
     data = dict(filename=video, label=-1, start_index=0, modality='RGB')

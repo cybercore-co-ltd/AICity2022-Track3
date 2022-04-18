@@ -1,19 +1,7 @@
 from mmaction.datasets.builder import DATASETS
 from mmaction.datasets.rawframe_dataset import RawframeDataset
-import copy
 import os.path as osp
-import warnings
-from abc import ABCMeta, abstractmethod
-from collections import OrderedDict, defaultdict
 
-import mmcv
-import numpy as np
-import torch
-from mmcv.utils import print_log
-from torch.utils.data import Dataset
-
-from mmaction.core import (mean_average_precision, mean_class_accuracy,
-                    mmit_mean_average_precision, top_k_accuracy)
 
 @DATASETS.register_module()
 class TSP_Multiviews_RawframeDataset(RawframeDataset):

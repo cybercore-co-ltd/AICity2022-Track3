@@ -87,6 +87,30 @@ python
 
 ## 2. Train the Second Stage Classifier:
 
+### 2.1 Prepare Datasets:
+
++ prepare for A1:
+```bash
+./reproduce_scripts/second_stage_classifier/dataset_prepare_A1.sh A1_video_dir trimmed_video_dir trimmed_rawframe_dir
+
+Example:./reproduce_scripts/second_stage_classifier/dataset_prepare_A1.sh A1 /out/prepair_train_ssc_video /out/prepair_train_ssc_rawframe
+```
+Output: rawframe trimmed-clip folder + csv-label-file (example: dashboard_train_without_bg_rawframes.csv)
+
+Note: A1 folder which is the same structure video A1 folder of ai-city-track3
+
++ prepare for A2:
+```bash
+./reproduce_scripts/second_stage_classifier/dataset_prepare_A2.sh A2_video_dir trimmed_video_dir trimmed_rawframe_dir
+
+Example:./reproduce_scripts/second_stage_classifier/dataset_prepare_A2.sh A2 /out/prepair_val_ssc_video /out/prepair_val_ssc_rawframe
+```
+Output: rawframe trimmed-clip folder + csv-label-file (example: dashboard_val_without_bg_rawframes.csv)
+
+Note: A2 folder which is the same structure video A1 folder of ai-city-track3 (please put each user-label-csv-file in each user-id-folder as A1 structure)
+### 2.2 Train/Test/Inference commands:
+Please change the path to rawframe_train/rawframe_val folder + relevant csv-label-file prepared at Section 2.1 to configs/_base_/datasets/aicity_multi_views_9rgb_224_rawframe.py
+
 + Inference classification from action-former proposal
 ```bash
 ./reproduce_scripts/second_stage_classifier/inference.sh
