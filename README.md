@@ -19,7 +19,7 @@ We recommend to use DockerFile for easy reproduction.
   ```
   where `DATA_DIR=<path-to-AI-CITY-2022-Track3-Downloaded folder>`. We also provide the script to run docker file.
   ```
-  ./docker/run_docker.sh {ANY_NAME}
+  ./docker/run_docker.sh 
   ```
 
 
