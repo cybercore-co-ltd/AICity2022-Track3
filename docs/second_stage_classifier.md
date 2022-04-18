@@ -3,36 +3,77 @@
 ## Prepare Datasets:
 
 + prepare for A1:
+We expect the data folder has following structure:
+
+```
+data/raw_video/A2
+                ├── user_id_42271
+                │   ├── Dashboard_user_id_42271_NoAudio_3.MP4
+                │   ├── Dashboard_user_id_42271_NoAudio_4.MP4
+                │   ├── Rear_view_user_id_42271_NoAudio_3.MP4
+                │   ├── Rear_view_user_id_42271_NoAudio_4.MP4
+                │   ├── Right_side_window_user_id_42271_NoAudio_3.MP4
+                │   ├── Right_side_window_user_id_42271_NoAudio_4.MP4
+                │   └── user_id_42271.csv
+                ├── user_id_56306
+                │   ├── Dashboard_user_id_56306_NoAudio_2.MP4
+                │   ├── Dashboard_user_id_56306_NoAudio_3.MP4
+                │   ├── Rear_view_user_id_56306_NoAudio_2.MP4
+                │   ├── Rear_view_user_id_56306_NoAudio_3.MP4
+                │   ├── Rightside_window_user_id_56306_NoAudio_2.MP4
+                │   ├── Rightside_window_user_id_56306_NoAudio_3.MP4
+                │   └── user_id_56306.csv
+                ...
+```
+Please run the following commands to prepare data for training.
 ```bash
 ./reproduce_scripts/second_stage_classifier/dataset_prepare_A1.sh 
 ```
-After running this scripts: raw-frames dataset usded for training is placed at folder: **./data/second_stage_classifier/train_trimmed_rawframes** with label file: **./data/second_stage_classifier/dashboard_train_without_bg_rawframes.csv**
-
-Note: A1 folder which is the same structure video A1 folder of ai-city-track3
+This script will extract:
++ raw-frames at the folder: `data/second_stage_classifier/train_trimmed_rawframes` 
++ and the label csv file: `data/second_stage_classifier/dashboard_train_without_bg_rawframes.csv`
 
 + prepare for A2:
+For reproducing purpose and quick evaluation, we also provide our Manual Labels for the A2 set in folder:
+```
+reproduce_scripts/A2_local_labels
+```        
+Please copy the corresponding labels file for each user to the folder A2 similar to A1 folder:
+```
+data/raw_video/A2
+                ├── user_id_42271
+                │   ├── Dashboard_user_id_42271_NoAudio_3.MP4
+                │   ├── Dashboard_user_id_42271_NoAudio_4.MP4
+                │   ├── Rear_view_user_id_42271_NoAudio_3.MP4
+                │   ├── Rear_view_user_id_42271_NoAudio_4.MP4
+                │   ├── Right_side_window_user_id_42271_NoAudio_3.MP4
+                │   ├── Right_side_window_user_id_42271_NoAudio_4.MP4
+                │   └── user_id_42271.csv
+                ├── user_id_56306
+                │   ├── Dashboard_user_id_56306_NoAudio_2.MP4
+                │   ├── Dashboard_user_id_56306_NoAudio_3.MP4
+                │   ├── Rear_view_user_id_56306_NoAudio_2.MP4
+                │   ├── Rear_view_user_id_56306_NoAudio_3.MP4
+                │   ├── Rightside_window_user_id_56306_NoAudio_2.MP4
+                │   ├── Rightside_window_user_id_56306_NoAudio_3.MP4
+                │   └── user_id_56306.csv
+                ...
+```
+then run command:
 ```bash
 ./reproduce_scripts/second_stage_classifier/dataset_prepare_A2.sh
 ```
-After running this scripts: raw-frames dataset usded for testing is placed at folder: **./data/second_stage_classifier/val_trimmed_rawframes** with label file: **./data/second_stage_classifier/dashboard_val_without_bg_rawframes.csv**
+This script will extract:
++ raw-frames at the folder: `data/second_stage_classifier/val_trimmed_rawframes` 
++ and the label csv file: `data/second_stage_classifier/dashboard_val_without_bg_rawframes.csv`
+  
+## Training and Testing scripts
 
-Note: please put each reproduce_scripts/A2_local_labels to relevant user-id folders
-
-
-## Quick Run: 
-### 1. Inference classification from action-former proposal
-```bash
-./reproduce_scripts/second_stage_classifier/inference.sh $TEST_VIDEO_DIR $PROPOSAL
-
-Example: ./reproduce_scripts/second_stage_classifier/inference.sh ./data/A2 ./actionformer.json
-```
-After running this script: we have result file: ./actionformer_mulview_ssc.json which is used for post-processing.
-
-### 2. Training
+### 1. Training
 ```bash
 ./reproduce_scripts/second_stage_classifier/train.sh
 ```
-### 3. Testing
+### 2. Evaluate on A2 dataset 
 ```bash
 ./reproduce_scripts/second_stage_classifier/test.sh
 ```

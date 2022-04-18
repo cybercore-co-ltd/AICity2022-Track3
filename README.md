@@ -11,3 +11,18 @@ Please follow the steps in [docs/Env_setup.md](docs/Env_setup.md). We provide bo
 Please follow the steps in [docs/Pretrain_backbone.md](docs/Pretrain_backbone.md)
 ## 2. Train the Second Stage Classifier:
 Please follow the steps in [docs/second_stage_classifier.md](docs/second_stage_classifier.md)
+
+# Inference on new dataset
+
+### Step 1. Run the detector to create proposals 
+TBD 
+
+### Step 2. Inference classification from action-former proposal
+```bash
+./reproduce_scripts/second_stage_classifier/inference.sh $TEST_VIDEO_DIR $PROPOSAL_JSON
+```
+For example:
+```
+./reproduce_scripts/second_stage_classifier/inference.sh ./data/raw_video/A2 ./actionformer.json
+```
+After running this script: we have result file: ./actionformer_mulview_ssc.json which is used for post-processing.
