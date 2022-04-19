@@ -42,7 +42,7 @@ def crop_resize_write_vid(frames, view, out_full_path):
     # Save the frames
     if not osp.exists(out_full_path):
         os.makedirs(out_full_path)
-        
+
     for i, vr_frame in enumerate(frames):
         if vr_frame is not None:
             w, h, _ = np.shape(vr_frame)
@@ -71,11 +71,12 @@ if __name__ == '__main__':
     args = parse_args()
     if not osp.exists(args.out_dir):
         os.makedirs(args.out_dir)
-
-    for vid_path in glob.glob(args.in_dir+'/**/*.MP4'):
+    for vid_path in glob.glob(osp.join(args.in_dir,'**/*.MP4')):
+        
         print(f"Process video: {vid_path}")
         view = osp.basename(vid_path).split('_')[0]
-        out_full_path = args.out_dir + osp.basename(vid_path)[:-4]
+        out_full_path = osp.join(args.out_dir, osp.basename(vid_path)[:-4])
 
         vid = mmcv.VideoReader(vid_path)
+
         crop_resize_write_vid(vid, view, out_full_path)

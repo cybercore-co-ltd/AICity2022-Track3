@@ -39,7 +39,6 @@ def parse_args():
 def get_f1_eval(args):
     cfg = Config.fromfile('configs/aicity/actionformer/distracted_driving.py')
     eval_config = {}
-    dataset = build_dataset(cfg.data.test, dict(test_mode=True))
     path = args.classifier_output
     print(path)
     outputs = mmcv.load(path)
@@ -76,6 +75,8 @@ def get_f1_eval(args):
         mmcv.dump(outputs, args.submit_file)
     
     try:
+        dataset = build_dataset(cfg.data.test, dict(test_mode=True))
+
         eval_res = dataset.evaluate(eval_ouputs, **eval_config)
         for name, val in eval_res.items():
             print(f'{name}: {val:.04f}')

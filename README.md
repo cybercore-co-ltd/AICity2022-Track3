@@ -31,7 +31,7 @@ where:
 
 #### 1.2 Extract features on new dataset-B
 ```
-IN_DIR='path/to/raw frames'
+IN_DIR='path/to/raw_frames/full_video/B'
 OUT_DIR="tsp_features/round_b/"
 CKPT="http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_tsp_67.5.pth"
 ./reproduce_scripts/detector/extract_tsp_b.sh  $CKPT $IN_DIR $OUT_DIR
