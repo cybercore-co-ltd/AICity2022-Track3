@@ -39,25 +39,14 @@ TEST_PIPELINE=[
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--config-t1k',
+        '--config',
         type=str,
         default='configs/aicity/convnext_vidconv_333_224_aicityA1_multi_view_T1k.py',
         help='Config file for detection')
     parser.add_argument(
-        '--checkpoint-t1k',
+        '--checkpoint',
         type=str,
         default='http://118.69.233.170:60001/open/AICity/track3/ssc/best_multiview_ckpt_e12.pth',
-        help='Checkpoint file for detection')
-
-    parser.add_argument(
-        '--config-s1k',
-        type=str,
-        default='configs/aicity/convnext_vidconv_333_224_aicityA1_multi_view_S1k.py',
-        help='Config file for detection')
-    parser.add_argument(
-        '--checkpoint-s1k',
-        type=str,
-        default='http://118.69.233.170:60001/open/AICity/track3/ssc/convnext_s1k_e12_78.57.pth',
         help='Checkpoint file for detection')
 
     parser.add_argument(
@@ -116,28 +105,24 @@ def label_name_mapping(label_id):
     return mapping[label_id]
 
 
-def inference_recognizer_multiview(model_t1k, model_s1k, video, test_pipeline=None,outputs=None, as_tensor=True):
+def inference_recognizer_multiview(model, video, test_pipeline=None,outputs=None, as_tensor=True):
 
     #convert rawframe flow to video flow
-    model_t1k.cfg.dataset_type = 'VideoDataset'
-    model_s1k.cfg.dataset_type = 'VideoDataset'
+    model.cfg.dataset_type = 'VideoDataset'
     
-    device = next(model_t1k.parameters()).device
+    device = next(model.parameters()).device
     data = dict(filename=video, label=-1, start_index=0, modality='RGB')
 
     data = test_pipeline(data)
     data = collate([data], samples_per_gpu=1)
 
-    if next(model_t1k.parameters()).is_cuda:
+    if next(model.parameters()).is_cuda:
         # scatter to specified GPU
         data = scatter(data, [device])[0]
 
     # forward the model
     with torch.no_grad():
-        score_t1k = model_t1k(return_loss=False, **data)[0]
-        score_s1k = model_s1k(return_loss=False, **data)[0]
-    score_s1k=score_s1k*0.7
-    scores = np.mean(np.array([score_t1k,score_s1k]),axis=0)
+        scores = model(return_loss=False, **data)[0]
     num_classes = scores.shape[-1]
     score_tuples = tuple(zip(range(num_classes), scores))
     score_sorted = sorted(score_tuples, key=itemgetter(1), reverse=True)
@@ -167,10 +152,8 @@ if __name__ == "__main__":
     test_pipeline = Compose(TEST_PIPELINE)
 
     # -----loading model
-    model_t1k = init_recognizer(args.config_t1k, args.checkpoint_t1k, device=args.device)
-    model_s1k = init_recognizer(args.config_s1k, args.checkpoint_s1k, device=args.device)
-    model_t1k.eval()
-    model_s1k.eval()
+    model = init_recognizer(args.config, args.checkpoint, device=args.device)
+    model.eval()
     os.makedirs(args.outdir, exist_ok=True)
 
     # ------------------------
@@ -226,7 +209,7 @@ if __name__ == "__main__":
                                    targetname=rightside_video)
             try:
                 pred_result = inference_recognizer_multiview(
-                    model_t1k, model_s1k,dashboard_video, test_pipeline=test_pipeline)
+                    model, dashboard_video, test_pipeline=test_pipeline)
 
             except:
                 print("--------- Error Here------------")
