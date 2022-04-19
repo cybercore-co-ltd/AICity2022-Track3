@@ -44,6 +44,7 @@ where:
 ```bash
 TEST_VIDEO_DIR=<path/to/test_video>
 PROPOSAL_RESULT="proposals.json"
+OUTPUT="result_submission.json"
 ./reproduce_scripts/second_stage_classifier/inference.sh $TEST_VIDEO_DIR $PROPOSAL_RESULT $OUTPUT
 ```
 For example:
