@@ -83,7 +83,7 @@ def main():
 
     model.feature_extraction=True# 4sure return BS*C
 
-
+    
     # Using readlines()
     file_list = open(args.filelist, 'r')
     if args.part==1:
@@ -93,7 +93,7 @@ def main():
 
     # loop all videos
     for _vid_name in tqdm(file_list):
-        video_path = args.in_dir + _vid_name[:-1]
+        video_path = osp.join(args.in_dir, _vid_name[:-1])
         save_feats = []
         print(f'Process: {video_path}')
         pkl_path = osp.join(args.out_dir, osp.basename(video_path)+'.pkl')
@@ -122,7 +122,7 @@ def main():
                 batchs = []
                 batchs.append(torch.tensor(in_data['imgs']))
                 save_feats.append(out_score)
-                
+        
         
         save_feats = np.concatenate(save_feats)
         with open(pkl_path, 'wb') as fout:
