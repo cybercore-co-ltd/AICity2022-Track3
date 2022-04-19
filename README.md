@@ -18,20 +18,31 @@ Please follow the steps in [docs/Proposal_Generation.md](docs/Proposal_Generatio
 # Inference on testing dataset 
 
 ### Step 1. Run the detector to create proposals 
-#### 1.1 Extract features on new dataset-B
+#### 1.1 Extract rawframes on new videos-B:
 ```
 IN_DIR='path/to/videos'
+OUT_DIR="data/raw_frames/full_video/B"
+reproduce_scripts/detector/extract_rawframes_fullvideo.sh $IN_DIR $OUT_DIR
+```
+where:
++ `IN_DIR` is the directory of testing videos . For A2 test set as an example, set `IN_DIR=data/raw_video/A2`. For B test set, set `IN_DIR=data/raw_video/B`.
++ The extracted frames for each video is saved at `OUT_DIR` folder, and procecced in the step 1.2 
+
+
+#### 1.2 Extract features on new dataset-B
+```
+IN_DIR='path/to/raw frames'
 OUT_DIR="tsp_features/round_b/"
 CKPT="http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_tsp_67.5.pth"
 ./reproduce_scripts/detector/extract_tsp_b.sh  $CKPT $IN_DIR $OUT_DIR
 ```
 where:
-+ `IN_DIR` is the directory of testing videos. For A2 test set as an example, set `IN_DIR=data/raw_video/A2`. For B test set, set `IN_DIR=data/raw_video/B`.
++ `IN_DIR` is the directory of testing raw frames. For A2 test set as an example, set `IN_DIR=data/raw_frames/full_video/A2`. For B test set, set `IN_DIR=data/raw_frames/full_video/B`.
 + `CKPT` is our pretrained checkpoint.
-+ The extracted feature for each video is saved at `OUT_DIR` folder, and procecced in the step 1.2 
++ The extracted feature for each video is saved at `OUT_DIR` folder, and procecced in the step 1.3
 
 
-#### 1.2 Generate proposals
+#### 1.3 Generate proposals
 
 
 Using the feature extracted in step 1.1, run the following command to create proposals:
