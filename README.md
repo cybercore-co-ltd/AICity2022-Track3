@@ -1,4 +1,4 @@
-# ccaction
+# 2022 AI-CITY CHALLENGE - TRACK3: Naturalistic Driving Action Recognition
 This project is developed by Cybercore AI for AI City Challenge 2022 Track 3.
 The project is based on the open source [mmaction2](https://github.com/open-mmlab/mmaction2) and [action-former](https://github.com/happyharrycn/actionformer_release)
 
@@ -62,4 +62,4 @@ After running this script: we have result file: ./result_submission.json which i
 
 
 # Credits:
-We thank [mmaction2](https://github.com/open-mmlab/mmaction2) and [action-former](https://github.com/happyharrycn/actionformer_release) for the code base. Please cite their work if you found this code is helpful.
+We thank [mmaction2](https://github.com/open-mmlab/mmaction2) and [action-former](https://github.com/happyharrycn/actionformer_release) for the code base. Please cite their work if you found our code is helpful.
