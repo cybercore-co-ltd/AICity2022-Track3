@@ -11,6 +11,7 @@ DEVICE="cuda:0"
 
 VIDEO_DIR=$1
 PROPOSAL_FILE=$2
+OUTPUT=$3
 OUT_DIR="ssc_json_folder"
 
 #------------ inference
@@ -22,4 +23,4 @@ python tools/ssc/inference_ssc.py --config-t1k $CFG_MODEL1 --checkpoint-t1k $CKP
 
 
 #------------ combine all video json files for post-process
-python tools/ssc/combine_json.py --proposal $PROPOSAL_FILE --outdir $OUT_DIR # output will be: actionformer_mulview_ssc.json
+python tools/ssc/combine_json.py --proposal $PROPOSAL_FILE --outdir $OUT_DIR --output $OUTPUT

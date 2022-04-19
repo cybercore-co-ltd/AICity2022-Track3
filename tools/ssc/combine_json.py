@@ -17,6 +17,12 @@ def parse_args():
         default="ssc_json_folder",
         help="json files for each video will be stored here"
     )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default="actionformer_mulview_ssc.json",
+        help="json files output"
+    )
     return parser.parse_args()
 
 
@@ -48,5 +54,5 @@ if __name__ == "__main__":
 
         new_json_file['results'][video_name] = tmp[dashboard_name+".MP4"]
 
-    with open("actionformer_mulview_ssc.json", "w") as f:
+    with open(args.output, "w") as f:
         json.dump(new_json_file, f)

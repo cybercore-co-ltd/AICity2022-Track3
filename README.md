@@ -44,13 +44,13 @@ where:
 ```bash
 TEST_VIDEO_DIR=<path/to/test_video>
 PROPOSAL_RESULT="proposals.json"
-./reproduce_scripts/second_stage_classifier/inference.sh $TEST_VIDEO_DIR $PROPOSAL_RESULT
+./reproduce_scripts/second_stage_classifier/inference.sh $TEST_VIDEO_DIR $PROPOSAL_RESULT $OUTPUT
 ```
 For example:
 ```
 ./reproduce_scripts/second_stage_classifier/inference.sh ./data/raw_video/A2 proposals.json result_submission.json
 ```
-After running this script: we have result file: ./actionformer_mulview_ssc.json which is used for post-processing in the next step.
+After running this script: we have result file: ./result_submission.json which is used for post-processing in the next step.
 
 ### Step 3: post-processing and generate submission file on Server. 
 ```
