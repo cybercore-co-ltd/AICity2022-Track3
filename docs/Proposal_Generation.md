@@ -35,7 +35,7 @@ Download [round1 annotaions]('http://118.69.233.170:60001/open/AICity/track3/det
 
 ### 4. Inference classification from action-former proposal:
 ```
-./reproduce_scripts/second_stage_classifier/inference.sh data/raw_video/A2 result_round1.json
+./reproduce_scripts/second_stage_classifier/inference.sh data/raw_video/A2 result_round1.json result_round1_ssc.json
 ```
 **Note:** The output is saved at: *result_round1_ssc.json*
 
@@ -76,12 +76,13 @@ Download [round2 annotaions]('http://118.69.233.170:60001/open/AICity/track3/det
 
 ### 7. Inference classification from action-former proposal:
 ```
-./reproduce_scripts/second_stage_classifier/inference.sh data/raw_video/A2 result_round2.json
+./reproduce_scripts/second_stage_classifier/inference.sh data/raw_video/A2 result_round2.json result_submission.json
 ```
-**Note:** We use this result for the submission: *result_submission.json*
-
 
 ### 8. Generate submission file:
 ```
 ./reproduce_scripts/gen_submit.sh result_submission.json
 ```
+```
+```
+**Note:** The output is saved at: *submit.txt*. We use this result for the submission:
