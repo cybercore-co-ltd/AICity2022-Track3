@@ -70,7 +70,7 @@ INPUT_FILE=result_submission.json
 where:
 + `INPUT_FILE` is the output from step 2.
 + This will generate the file `submit.txt` for submission. 
-+ NOTE: For submission, we need the `video_ids` file, such as one in `tools/detector/video_ids_A2clean.csv`. To run inference on B dataset (unknown at this time), we need a similar file.
++ NOTE: For submission, we need the `video_ids` file, such as one in `tools/detector/video_ids_A2clean.csv`. To run inference on B dataset (unknown at this time), we need a similar file. See input of `tools/detector/convert_json2txt.py`.
 
 # Credits:
 We thank [mmaction2](https://github.com/open-mmlab/mmaction2) and [action-former](https://github.com/happyharrycn/actionformer_release) for the code base. Please cite their work if you found our code is helpful.
