@@ -60,4 +60,4 @@ After running this script: we have result file: ./result_submission.json which i
 
 
 # Credits:
-We thank [mmaction2](https://github.com/open-mmlab/mmaction2) and [action-former](https://github.com/happyharrycn/actionformer_release) for the code base. Please cite their work if you found this code is helpful.
+We thank [mmaction2](https://github.com/open-mmlab/mmaction2) and [action-former](https://github.com/happyharrycn/actionformer_release) for the code base. Please cite their work if you found our code is helpful.
