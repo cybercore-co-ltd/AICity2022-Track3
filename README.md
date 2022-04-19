@@ -18,20 +18,22 @@ Please follow the steps in [docs/Proposal_Generation.md](docs/Proposal_Generatio
 # Inference on testing dataset 
 
 ### Step 1. Run the detector to create proposals 
-#### 1.1 Extract features on new dataset
+#### 1.1 Extract features on new dataset-B
 ```
-OUT_DIR="tsp_features/new_dataset/"
+IN_DIR='path/to/videos'
+OUT_DIR="tsp_features/round_b/"
 CKPT="http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_tsp_67.5.pth"
-./reproduce_scripts/detector/extract_tsp.sh  $CKPT $OUT_DIR
+./reproduce_scripts/detector/extract_tsp.sh  $CKPT $IN_DIR $OUT_DIR
 ```
 where:
 + `CKPT` is our pretrained checkpoint.
 + The extracted feature for each video is saved at `OUT_DIR` folder, and procecced in the step 1.2 
 
+
 #### 1.2 Generate proposals
 Using the feature extracted in step 1.1, run the following command to create proposals:
 ```
-CONFIG="configs/aicity/actionformer/track3_actionformer_new.yaml"
+CONFIG="configs/aicity/actionformer/track3_actionformer_B.yaml"
 CKPT="http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_map_31.55.pth.tar"
 PROPOSAL_RESULT="proposals.json"
 ./reproduce_scripts/detector/val_actionformer.sh $CONFIG $CKPT $PROPOSAL_RESULT 

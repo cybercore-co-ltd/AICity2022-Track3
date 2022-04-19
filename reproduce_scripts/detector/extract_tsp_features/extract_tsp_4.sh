@@ -1,8 +1,11 @@
 export  CUDA_VISIBLE_DEVICES=3
 CKPT=$1
+FILE_LIST=$2
+INTPUT_DIR=$3
+OUTPUT_DIR=$4
 python tools/detector/extract_feats.py \
 --ckpt $CKPT \
 --part 2 \
---filelist reproduce_scripts/detector/extract_tsp_features/file_list_A2.txt \
---in_dir data/raw_frames/full_video/A2/ \
---out_dir A2
+--filelist $FILE_LIST \
+--in_dir $INTPUT_DIR \
+--out_dir $OUTPUT_DIR

@@ -3,7 +3,7 @@ train_split: ['training']
 val_split: ['validation']
 dataset: {
   json_file: annotations/a1a2_anns.json,
-  feat_folder: tsp_features/new_dataset/,
+  feat_folder: tsp_features/round_b/,
   file_prefix: ~,
   file_ext: .pkl,
   default_fps: 30,
