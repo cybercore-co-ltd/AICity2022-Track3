@@ -12,23 +12,39 @@ Please follow the steps in [docs/Pretrain_backbone.md](docs/Pretrain_backbone.md
 ## 2. Train the Second Stage Classifier:
 Please follow the steps in [docs/second_stage_classifier.md](docs/second_stage_classifier.md)
 
-# Inference on new dataset
+## 3. Train the Detector and Generate Pseudo Labels on A2. 
+Please follow the steps in [docs/Proposal_Generation.md](docs/Proposal_Generation.md)
+
+# Inference on testing dataset 
 
 ### Step 1. Run the detector to create proposals 
-#### 1.1 Extract tsp features on new dataset
+#### 1.1 Extract features on new dataset
 ```
-./reproduce_scripts/detector/extract_tsp.sh http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_tsp_67.5.pth tsp_features/new_dataset/
+OUT_DIR="tsp_features/new_dataset/"
+CKPT="http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_tsp_67.5.pth"
+./reproduce_scripts/detector/extract_tsp.sh  $CKPT $OUT_DIR
 ```
-**Note:** The tsp features are saved at: *tsp_features/new_dataset/*
+where:
++ `CKPT` is our pretrained checkpoint.
++ The extracted feature for each video is saved at `OUT_DIR` folder, and procecced in the step 1.2 
 
 #### 1.2 Generate proposals
+Using the feature extracted in step 1.1, run the following command to create proposals:
 ```
-./reproduce_scripts/detector/val_actionformer.sh configs/aicity/actionformer/track3_actionformer_new.yaml http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_map_31.55.pth.tar  proposals.json
+CONFIG="configs/aicity/actionformer/track3_actionformer_new.yaml"
+CKPT="http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_map_31.55.pth.tar"
+PROPOSAL_RESULT="proposals.json"
+./reproduce_scripts/detector/val_actionformer.sh $CONFIG $CKPT $PROPOSAL_RESULT 
 ```
-
+where:
++ `CONFIG` is the model's config file.
++ `CKPT` is the model's checkpoint.
++ `PROPOSAL_RESULT` is the output file, which is used in the step 2.
 ### Step 2. Inference classification from action-former proposal
 ```bash
-./reproduce_scripts/second_stage_classifier/inference.sh $TEST_VIDEO_DIR $PROPOSAL_JSON
+TEST_VIDEO_DIR=<path/to/test_video>
+PROPOSAL_RESULT="proposals.json"
+./reproduce_scripts/second_stage_classifier/inference.sh $TEST_VIDEO_DIR $PROPOSAL_RESULT
 ```
 For example:
 ```
