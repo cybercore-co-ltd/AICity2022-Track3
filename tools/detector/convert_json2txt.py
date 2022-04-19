@@ -1,5 +1,6 @@
 import json
-import os
+import argparse 
+
 def video_id_process(video_path):
     mapping = {}
 
@@ -18,12 +19,18 @@ def video_id_process(video_path):
 
     return mapping
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='extract optical flows')
+    parser.add_argument('--video_id', type=str, help='video_ids.csv',
+                        default='tools/detector/video_ids_A2clean.csv')
+    return parser.parse_args()
 
 if __name__ == "__main__":
     submit_file = open("submit.txt", "a")
     submit_list = []
+    args = parse_args()
 
-    video_id_mapping = video_id_process("tools/detector/video_ids.csv")
+    video_id_mapping = video_id_process(args.video_id)
     json_file = json.load(
         open("submit.json", "r"))
     set_lines = []

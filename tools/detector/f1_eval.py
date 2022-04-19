@@ -28,8 +28,10 @@ CLASS_MAPPING =[
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Build file list')
-    parser.add_argument('json_output_path', type=str, help='source video directory', 
+    parser.add_argument('classifier_output', type=str, help='source video directory', 
                         default='actionformer_vidconv.json')
+    parser.add_argument('submit_file', type=str, help='source video directory', 
+                        default='submit.json')
     args = parser.parse_args()
 
     return args
@@ -38,7 +40,7 @@ def get_f1_eval(args):
     cfg = Config.fromfile('configs/aicity/actionformer/distracted_driving.py')
     eval_config = {}
     dataset = build_dataset(cfg.data.test, dict(test_mode=True))
-    path = args.json_output_path
+    path = args.classifier_output
     print(path)
     outputs = mmcv.load(path)
     eval_ouputs = []
@@ -58,7 +60,7 @@ def get_f1_eval(args):
             proposal_list = convert_proposal_list
             eval_ouputs.append({'video_name': video_name, 'proposal_list': proposal_list})
             outputs['results'][video_name]=proposal_list
-        mmcv.dump(outputs, 'submit.json')
+        mmcv.dump(outputs, args.submit_file)
     else:
         for video_name, proposal_list in outputs['results'].items():
             convert_proposal_list = []
@@ -71,13 +73,15 @@ def get_f1_eval(args):
             proposal_list = convert_proposal_list
             eval_ouputs.append({'video_name': video_name, 'proposal_list': proposal_list})
             outputs['results'][video_name]=proposal_list
-        mmcv.dump(outputs, 'submit.json')
+        mmcv.dump(outputs, args.submit_file)
+    
     try:
         eval_res = dataset.evaluate(eval_ouputs, **eval_config)
         for name, val in eval_res.items():
             print(f'{name}: {val:.04f}')
     except:
         print("Only submission")
+        
 if __name__ == '__main__':
     args = parse_args()
     get_f1_eval(args)

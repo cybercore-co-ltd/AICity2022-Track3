@@ -26,7 +26,7 @@ CKPT="http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_tsp_67
 ./reproduce_scripts/detector/extract_tsp_b.sh  $CKPT $IN_DIR $OUT_DIR
 ```
 where:
-+ `IN_DIR` is the directory of testing videos. For A2 test set as an example, set `IN_DIR=data/raw_video/A2`.
++ `IN_DIR` is the directory of testing videos. For A2 test set as an example, set `IN_DIR=data/raw_video/A2`. For B test set, set `IN_DIR=data/raw_video/B`.
 + `CKPT` is our pretrained checkpoint.
 + The extracted feature for each video is saved at `OUT_DIR` folder, and procecced in the step 1.2 
 
@@ -55,15 +55,22 @@ OUTPUT="result_submission.json"
 ```
 For example:
 ```
-./reproduce_scripts/second_stage_classifier/inference.sh ./data/raw_video/A2 proposals.json result_submission.json
+./reproduce_scripts/second_stage_classifier/inference.sh \
+    ./data/raw_video/A2 \ 
+    proposals.json \
+    result_submission.json
 ```
-After running this script: we have result file: ./result_submission.json which is used for post-processing in the next step.
+After running this script: we have result file: `result_submission.json` which is used for post-processing in the next step.
 
 ### Step 3: post-processing and generate submission file on Server. 
 ```
-./reproduce_scripts/gen_submit.sh result_submission.json
+INPUT_FILE=result_submission.json
+./reproduce_scripts/gen_submit.sh $INPUT_FILE
 ```
-
+where:
++ `INPUT_FILE` is the output from step 2.
++ This will generate the file `submit.txt` for submission. 
++ NOTE: For submission, we need the `video_ids` file, such as one in `tools/detector/video_ids_A2clean.csv`. To run inference on B dataset (unknown at this time), we need a similar file.
 
 # Credits:
 We thank [mmaction2](https://github.com/open-mmlab/mmaction2) and [action-former](https://github.com/happyharrycn/actionformer_release) for the code base. Please cite their work if you found our code is helpful.
