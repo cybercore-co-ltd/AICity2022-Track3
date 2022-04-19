@@ -26,20 +26,24 @@ CKPT="http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_tsp_67
 ./reproduce_scripts/detector/extract_tsp_b.sh  $CKPT $IN_DIR $OUT_DIR
 ```
 where:
++ `IN_DIR` is the directory of testing videos. For A2 test set as an example, set `IN_DIR=data/raw_video/A2`.
 + `CKPT` is our pretrained checkpoint.
 + The extracted feature for each video is saved at `OUT_DIR` folder, and procecced in the step 1.2 
 
 
 #### 1.2 Generate proposals
+
+
 Using the feature extracted in step 1.1, run the following command to create proposals:
 ```
 CONFIG="configs/aicity/actionformer/track3_actionformer_B.yaml"
 CKPT="http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round2_map_31.55.pth.tar"
 PROPOSAL_RESULT="proposals.json"
+
 ./reproduce_scripts/detector/val_actionformer.sh $CONFIG $CKPT $PROPOSAL_RESULT 
 ```
 where:
-+ `CONFIG` is the model's config file.
++ `CONFIG` is the model's config file. We assume the extracted feature in Step 1.1. is saved as `tsp_features/round_b/`, which is specified in the config yaml. If you change the directory or testing video, please adjust the config file accordingly.
 + `CKPT` is the model's checkpoint.
 + `PROPOSAL_RESULT` is the output file, which is used in the step 2.
 ### Step 2. Inference classification from action-former proposal
