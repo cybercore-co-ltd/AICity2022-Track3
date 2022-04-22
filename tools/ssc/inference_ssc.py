@@ -1,4 +1,5 @@
 import argparse
+from gc import callbacks
 import os
 import json
 import torch
@@ -12,6 +13,12 @@ from mmaction.datasets.pipelines import Compose
 from mmcv.parallel import collate, scatter
 from mmaction.core import OutputHook
 from operator import itemgetter
+# from multiprocessing import Lock, Pool
+from torch.multiprocessing import Pool,Lock,set_start_method
+try:
+     set_start_method('spawn')
+except RuntimeError:
+    pass
 
 from tqdm import tqdm
 
@@ -73,6 +80,12 @@ def parse_args():
         help="Specify cuda device"
     )
     parser.add_argument(
+        '--num-worker',
+        type=int,
+        default=10,
+        help='number of workers to build rawframes')
+
+    parser.add_argument(
         '--outdir',
         type=str,
         default="ssc_json_folder",
@@ -132,6 +145,77 @@ def inference_recognizer_multiview(model, video, test_pipeline=None,outputs=None
     return top5_label
 
 
+def trimm_clip_infer(items):
+
+    bmn_keys,_result,video_dir, proposal_thr, model, test_pipeline = items
+
+    video_name = bmn_keys
+    # getting user_id
+    user_id = video_name.split("_")[-3]
+    user_id = "user_id_" + user_id
+
+    video_name = video_name + ".MP4"
+
+    dashboard_video = video_name
+    dashboard_video = process_name(dashboard_video)
+
+    if _result['score'] < proposal_thr:
+        _result['pred'] = []
+        _result['class_name'] = []
+        return _result
+    start_time = int(_result["segment"][0])
+    end_time = int(_result["segment"][1])
+
+    tmp_start = round(_result["segment"][0], 3)
+    tmp_end = round(_result["segment"][1], 3)
+    new_dashboard_video = os.path.join("tmp_video_dir", dashboard_video.replace(".MP4", f"_{tmp_start}_{tmp_end}.MP4"))
+
+    # cutting video here
+    ffmpeg_extract_subclip(os.path.join(video_dir, user_id, dashboard_video), start_time, end_time,
+                            targetname=new_dashboard_video)
+
+    rear_video = dashboard_video.replace("Dashboard", "Rear_view")
+    new_rear_video = new_dashboard_video.replace("Dashboard", "Rear_view")
+
+    ffmpeg_extract_subclip(os.path.join(video_dir, user_id, rear_video),
+                            start_time, end_time,
+                            targetname=new_rear_video)
+
+    rightside_video = dashboard_video.replace(
+        "Dashboard", "Rightside_window")
+    new_rightside_video = new_dashboard_video.replace(
+        "Dashboard", "Rightside_window")
+
+    if not os.path.exists(os.path.join(video_dir, user_id, rightside_video)):
+        if "Rightside" in rightside_video:
+            rightside_video = rightside_video.replace(
+                "Rightside", "Right_side")
+        elif "Right_side" in rightside_video:
+            rightside_video = rightside_video.replace(
+                "Right_side", "Rightside")
+
+    ffmpeg_extract_subclip(os.path.join(video_dir, user_id, rightside_video),
+                            start_time, end_time,
+                            targetname=new_rightside_video)
+    
+    try:
+        pred_result = inference_recognizer_multiview(
+            model, new_dashboard_video, test_pipeline=test_pipeline)
+
+    except:
+        print("--------- Error Here------------")
+        raise ValueError("Maybe irrelevant path to video testing")
+
+    # ----------- for local evaluation
+    pred_class_name = [label_name_mapping(tmp[0])
+                        for tmp in pred_result]
+    pred_result = [list(map(np.float64, tmp))
+                    for tmp in pred_result]
+    _result['pred'] = pred_result
+    _result['class_name'] = pred_class_name
+
+    return _result
+        
 def process_name(dashboard_video):
 
     if "Dashboard" in dashboard_video:
@@ -143,6 +227,10 @@ def process_name(dashboard_video):
     elif "Right_side_window" in dashboard_video:
         return dashboard_video.replace("Right_side_window", "Dashboard")
 
+
+def init(lock_):
+    global lock
+    lock = lock_
 
 if __name__ == "__main__":
     args = parse_args()
@@ -156,82 +244,38 @@ if __name__ == "__main__":
     model.eval()
     os.makedirs(args.outdir, exist_ok=True)
 
+    # create tmp_video
+    os.makedirs("tmp_video_dir", exist_ok=True)
     # ------------------------
     for bmn_keys, results in tqdm(json_file['results'].items()):
-
         if "Dashboard" not in bmn_keys:
             print("Passing here")
             continue
-        video_name = bmn_keys
-        # getting user_id
-        user_id = video_name.split("_")[-3]
-        user_id = "user_id_" + user_id
 
-        video_name = video_name + ".MP4"
+        lock = Lock()
+        pool = Pool(args.num_worker, initializer=init, initargs=(lock, ))
+
+        print("Processing Video: ", bmn_keys)
         new_json_file = {}
+        new_json_file[bmn_keys+".MP4"] = []
+        result_length = len(results)
+        # trimm_clip_infer((bmn_keys,results[0],  args.video_dir, args.proposal_thr, model, test_pipeline))
+        pool.map_async(
+            trimm_clip_infer,
+            zip(result_length* [bmn_keys], 
+                results,
+                result_length*[args.video_dir],
+                result_length*[args.proposal_thr],
+                result_length* [model], 
+                result_length* [test_pipeline]),
+            callback=new_json_file[bmn_keys+".MP4"].append)
+        pool.close()
+        pool.join()
 
-        dashboard_video = video_name
-        dashboard_video = process_name(dashboard_video)
-        print("Video_name: ", video_name)
-        new_json_file[video_name] = []
-
-        for _result in results:
-            if _result['score'] < args.proposal_thr:
-                _result['pred'] = []
-                _result['class_name'] = []
-                new_json_file[video_name].append(_result)
-                continue
-            start_time = int(_result["segment"][0])
-            end_time = int(_result["segment"][1])
-
-            # cutting video here
-            ffmpeg_extract_subclip(os.path.join(args.video_dir, user_id, dashboard_video), start_time, end_time,
-                                   targetname=dashboard_video)
-
-            rear_video = dashboard_video.replace("Dashboard", "Rear_view")
-            ffmpeg_extract_subclip(os.path.join(args.video_dir, user_id, rear_video),
-                                   start_time, end_time,
-                                   targetname=rear_video)
-
-            rightside_video = dashboard_video.replace(
-                "Dashboard", "Rightside_window")
-
-            if not os.path.exists(os.path.join(args.video_dir, user_id, rightside_video)):
-                if "Rightside" in rightside_video:
-                    rightside_video = rightside_video.replace(
-                        "Rightside", "Right_side")
-                elif "Right_side" in rightside_video:
-                    rightside_video = rightside_video.replace(
-                        "Right_side", "Rightside")
-
-            ffmpeg_extract_subclip(os.path.join(args.video_dir, user_id, rightside_video),
-                                   start_time, end_time,
-                                   targetname=rightside_video)
-            try:
-                pred_result = inference_recognizer_multiview(
-                    model, dashboard_video, test_pipeline=test_pipeline)
-
-            except:
-                print("--------- Error Here------------")
-                raise ValueError("Maybe irrelevant path to video testing")
-
-            # ----------- for local evaluation
-            pred_class_name = [label_name_mapping(tmp[0])
-                               for tmp in pred_result]
-            pred_result = [list(map(np.float64, tmp))
-                           for tmp in pred_result]
-            _result['pred'] = pred_result
-            _result['class_name'] = pred_class_name
-            new_json_file[video_name].append(_result)
-
+        new_json_file[bmn_keys+".MP4"] = new_json_file[bmn_keys+".MP4"][0]
         with open(os.path.join(args.outdir, bmn_keys + ".json"), "w") as f:
             json.dump(new_json_file, f)
-        
-        # remove old video name
-        filelist = glob.glob(os.path.join("./", "*.MP4"))
+
+        filelist = glob.glob("tmp_video_dir/*")
         for f in filelist:
             os.remove(f)
-
-        filelist = glob.glob(os.path.join("./", "*.mp4"))
-        for f in filelist:
-            os.remove(f)    
