@@ -43,36 +43,23 @@ def get_f1_eval(args):
     print(path)
     outputs = mmcv.load(path)
     eval_ouputs = []
-    if 'ssc' in path:
-        for video_name, proposal_list in outputs['results'].items():
-            convert_proposal_list = []
-            for _proposal in proposal_list:
-                if float(_proposal['segment'][1]-_proposal['segment'][0])<5: continue
-                if float(_proposal['segment'][1]-_proposal['segment'][0])>35: continue
-                for _actions in _proposal['pred'][:1]:
-                    _add_segment={}
-                    _add_segment['label']=_actions[0]
-                    _add_segment['score']=_actions[1]
-                    if _add_segment['score']<0.4: continue
-                    _add_segment['segment'] = [round(_) for _ in _proposal['segment']]
-                    convert_proposal_list.append(_add_segment)
-            proposal_list = convert_proposal_list
-            eval_ouputs.append({'video_name': video_name, 'proposal_list': proposal_list})
-            outputs['results'][video_name]=proposal_list
-        mmcv.dump(outputs, args.submit_file)
-    else:
-        for video_name, proposal_list in outputs['results'].items():
-            convert_proposal_list = []
-            for _proposal in proposal_list:
-                if float(_proposal['segment'][1]-_proposal['segment'][0])<5: continue
-                if float(_proposal['segment'][1]-_proposal['segment'][0])>35: continue
-                _proposal['segment'] = [round(_) for _ in _proposal['segment']]
-                if _proposal['score']<0.4: continue
-                convert_proposal_list.append(_proposal)
-            proposal_list = convert_proposal_list
-            eval_ouputs.append({'video_name': video_name, 'proposal_list': proposal_list})
-            outputs['results'][video_name]=proposal_list
-        mmcv.dump(outputs, args.submit_file)
+    
+    for video_name, proposal_list in outputs['results'].items():
+        convert_proposal_list = []
+        for _proposal in proposal_list:
+            if float(_proposal['segment'][1]-_proposal['segment'][0])<5: continue
+            if float(_proposal['segment'][1]-_proposal['segment'][0])>35: continue
+            for _actions in _proposal['pred'][:1]:
+                _add_segment={}
+                _add_segment['label']=_actions[0]
+                _add_segment['score']=_actions[1]
+                if _add_segment['score']<0.4: continue
+                _add_segment['segment'] = [round(_) for _ in _proposal['segment']]
+                convert_proposal_list.append(_add_segment)
+        proposal_list = convert_proposal_list
+        eval_ouputs.append({'video_name': video_name, 'proposal_list': proposal_list})
+        outputs['results'][video_name]=proposal_list
+    mmcv.dump(outputs, args.submit_file)
     
     try:
         dataset = build_dataset(cfg.data.test, dict(test_mode=True))
