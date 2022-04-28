@@ -1,5 +1,5 @@
 # 2022 AI-CITY CHALLENGE - TRACK3: Naturalistic Driving Action Recognition
-This project is developed by Cybercore AI for AI City Challenge 2022 Track 3. See details in our [paper](25.pdf)
+This project is developed by Cybercore AI for AI City Challenge 2022 Track 3. See details in our [paper](25.pdf).
 The project is based on the open source [mmaction2](https://github.com/open-mmlab/mmaction2) and [action-former](https://github.com/happyharrycn/actionformer_release)
 
 # Installation
