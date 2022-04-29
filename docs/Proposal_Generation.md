@@ -20,7 +20,7 @@ python setup.py install --user
 cd ../..
 ```
 #### 3.2 Download annotations:
-Download [round1 annotaions]('http://118.69.233.170:60001/open/AICity/track3/detector/annotations/a1a2_anns.json') and save at *annotaions/*: 
+Download [round1 annotaions](http://118.69.233.170:60001/open/AICity/track3/detector/annotations/a1a2_anns.json) and save at *annotaions/*: 
   
 ```
 ./reproduce_scripts/detector/train_actionformer.sh configs/aicity/actionformer/track3_actionformer_round1.yaml
@@ -61,7 +61,7 @@ Download [round1 annotaions]('http://118.69.233.170:60001/open/AICity/track3/det
 **Note:** The tsp features are saved at: *tsp_features/round2/*
 
 ### 5. Train Round 2: Using A1 dataset and Pseudo Label on A2 (Pseudo-A2-v1):
-Download [round2 annotaions]('http://118.69.233.170:60001/open/AICity/track3/detector/annotations/round1_anns.json') and save at annotaions/: 
+Download [round2 annotaions](http://118.69.233.170:60001/open/AICity/track3/detector/annotations/round1_anns.json) and save at annotaions/: 
 
 ```
 ./reproduce_scripts/detector/train_actionformer.sh configs/aicity/actionformer/track3_actionformer_round2.yaml
