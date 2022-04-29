@@ -81,6 +81,4 @@ Download [annotaions](http://118.69.233.170:60001/open/AICity/track3/detector/an
 ```
 ./reproduce_scripts/gen_submit.sh result_submission.json
 ```
-```
-```
 **Note:** The output is saved at: *submit.txt*. We use this result for the submission:
