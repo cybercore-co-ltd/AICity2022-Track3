@@ -53,7 +53,7 @@ def get_f1_eval(args):
                 _add_segment={}
                 _add_segment['label']=_actions[0]
                 _add_segment['score']=_actions[1]
-                if _add_segment['score']<0.4: continue
+                if _add_segment['score']<0.45: continue
                 _add_segment['segment'] = [round(_) for _ in _proposal['segment']]
                 convert_proposal_list.append(_add_segment)
         proposal_list = convert_proposal_list
