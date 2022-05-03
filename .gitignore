@@ -141,8 +141,7 @@ configs/mmcls
 
 work_dirs/
 command/
-*.pth
-*.txt 
+*.pth 
 *.npy
 data/
 *.json
