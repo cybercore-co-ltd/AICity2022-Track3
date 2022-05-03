@@ -10,14 +10,7 @@
 
 
 ### 2. Train Round 1: Using A1 dataset
-#### 2.1 Install:
-```
-cd actionformer/utils
-python setup.py install --user
-cd ../..
-```
-#### 2.2 Download annotations:
-Download [annotaions](http://118.69.233.170:60001/open/AICity/track3/detector/annotations/a1a2_anns.json) and save at *annotaions/*: 
+Download [annotaions](http://118.69.233.170:60001/open/AICity/track3/detector/annotations/a1a2_anns.json) and save at *annotaions/* : 
   
 ```
 ./reproduce_scripts/detector/train_actionformer.sh configs/aicity/actionformer/track3_actionformer_round1.yaml
