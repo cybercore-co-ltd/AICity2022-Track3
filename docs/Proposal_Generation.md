@@ -1,10 +1,7 @@
 # QUICK RUN: ACTIONFORMER-PROPOSAL GENERATION
 
 ## ROUND 1
-### 1. Train TSP
-save as: *round1_tsp_62.5_student.pth*
-
-### 2. Extract TSP Features Round 1:
+### 1. Extract TSP Features Round 1:
   
 ```
 ./reproduce_scripts/detector/extract_tsp.sh http://118.69.233.170:60001/open/AICity/track3/detector/ckpt/round1_tsp_62.5_student.pth tsp_features/round1/
@@ -12,14 +9,14 @@ save as: *round1_tsp_62.5_student.pth*
 **Note:** The tsp features are saved at: *tsp_features/round1/*
 
 
-### 3. Train Round 1: Using A1 dataset
-#### 3.1 Install:
+### 2. Train Round 1: Using A1 dataset
+#### 2.1 Install:
 ```
 cd actionformer/utils
 python setup.py install --user
 cd ../..
 ```
-#### 3.2 Download annotations:
+#### 2.2 Download annotations:
 Download [annotaions](http://118.69.233.170:60001/open/AICity/track3/detector/annotations/a1a2_anns.json) and save at *annotaions/*: 
   
 ```
@@ -27,7 +24,7 @@ Download [annotaions](http://118.69.233.170:60001/open/AICity/track3/detector/an
 ```
 **Note:** The best ckpt is saved at: *ckpt/track3_actionformer_round1/max_map_epoch.pth.tar*
 
-### 4. Evaluate on A2 dataset:
+### 3. Evaluate on A2 dataset:
 ```
 ./reproduce_scripts/detector/val_actionformer.sh configs/aicity/actionformer/track3_actionformer_round1.yaml ckpt/track3_actionformer_round1/max_map_epoch.pth.tar  result_round1.json
 ```
