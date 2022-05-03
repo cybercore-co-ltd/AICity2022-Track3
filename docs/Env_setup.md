@@ -56,6 +56,12 @@ MIM can automatically install OpenMMLab projects and their requirements.
 ```shell
 python setup.py develop
 ```
+4. Install Actionformer package
+```shell
+cd actionformer/utils
+python setup.py install --user
+cd ../..
+```
 
 ## Data Download and extract frame:
 We assume that the dataset is downloaded and placed (or have symbolic-link) in the following structure :
