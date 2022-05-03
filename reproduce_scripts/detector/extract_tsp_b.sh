@@ -8,6 +8,6 @@ reproduce_scripts/detector/extract_tsp_features/extract_tsp_2.sh $CKPT file_list
 reproduce_scripts/detector/extract_tsp_features/extract_tsp_3.sh $CKPT file_list_B.txt $INPUT_VIDEO B/ &
 reproduce_scripts/detector/extract_tsp_features/extract_tsp_4.sh $CKPT file_list_B.txt $INPUT_VIDEO B/
 
-mkdir -p tsp_features/round_b
+mkdir -p $OUTPUT_VIDEO
 
 python tools/detector/concat_multiview_feats.py B/ $OUTPUT_VIDEO 
