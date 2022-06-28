@@ -8,6 +8,7 @@ import tqdm
 from logging import raiseExceptions
 import warnings
 import argparse
+from tqdm import tqdm 
 
 CLASS_NAMES = ['Normal_Forward_Driving', 'Drinking', 'Phone_Call_right', 
             'Phone_Call_left', 'Eating', 'Text_Right', 
@@ -29,39 +30,64 @@ def parse_args():
 
 def crop_resize_write_vid(frames, view, out_full_path):
     new_short = 256
-    if 'Dashboard' in view:
-        frames = [f[:,380:1800,:] for f in frames]
-    elif 'Rear' in view:
-        frames = [f[:,750:,:] for f in frames]
-    elif 'Right' in view:
-        frames = [f[:,750:,:] for f in frames]
-    else:
-        raiseExceptions('view not supported')
+    assert view in ['Dashboard','Rear','Right']
+    # if 'Dashboard' in view:
+    #     frames = [f[:,380:1800,:] for f in frames]
+    # elif 'Rear' in view:
+    #     frames = [f[:,750:,:] for f in frames]
+    # elif 'Right' in view:
+    #     frames = [f[:,750:,:] for f in frames]
+    # else:
+    #     raiseExceptions('view not supported')
 
     run_success = -1
     # Save the frames
     if not osp.exists(out_full_path):
         os.makedirs(out_full_path)
 
-    for i, vr_frame in enumerate(frames):
-        if vr_frame is not None:
-            w, h, _ = np.shape(vr_frame)
+    # for i, vr_frame in enumerate(frames):
+    #     if vr_frame is not None:
+    #         w, h, _ = np.shape(vr_frame)
             
-            if min(h, w) == h:
-                new_h = new_short
-                new_w = int((new_h / h) * w)
-            else:
-                new_w = new_short
-                new_h = int((new_w / w) * h)
-            out_img = mmcv.imresize(vr_frame, (new_h, new_w))
-            mmcv.imwrite(out_img,
-                            f'{out_full_path}/img_{i + 1:05d}.jpg')
-        else:
+    #         if min(h, w) == h:
+    #             new_h = new_short
+    #             new_w = int((new_h / h) * w)
+    #         else:
+    #             new_w = new_short
+    #             new_h = int((new_w / w) * h)
+    #         out_img = mmcv.imresize(vr_frame, (new_h, new_w))
+    #         mmcv.imwrite(out_img,
+    #                         f'{out_full_path}/img_{i + 1:05d}.jpg')
+    #     else:
+    #         warnings.warn(
+    #             'Length inconsistent!'
+    #             f'Early stop with {i + 1} out of {len(frames)} frames.'
+    #         )
+    #         break
+    for i,f in enumerate(tqdm(frames)):
+        if f is None:
             warnings.warn(
                 'Length inconsistent!'
                 f'Early stop with {i + 1} out of {len(frames)} frames.'
             )
             break
+
+        if 'Dashboard' in view:
+            vr_frame = f[:,380:1800,:]
+        else:
+            vr_frame = f[:,750:,:] 
+        w, h, _ = np.shape(vr_frame)
+        
+        if min(h, w) == h:
+            new_h = new_short
+            new_w = int((new_h / h) * w)
+        else:
+            new_w = new_short
+            new_h = int((new_w / w) * h)
+        out_img = mmcv.imresize(vr_frame, (new_h, new_w))
+        mmcv.imwrite(out_img,
+                        f'{out_full_path}/img_{i + 1:05d}.jpg')
+            
     run_success = 0
 
     return run_success
